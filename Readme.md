@@ -1,7 +1,7 @@
-# Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url] [![Dependency status][dependency-image]][dependency-url]
+﻿# Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url] [![Dependency status][dependency-image]][dependency-url]
 
 * Студент: [Сергей Павлов](https://up.htmlacademy.ru/javascript/5/user/109209).
-* Наставник: `Неизвестно`.
+* Наставник: [Татьяна Коростелева](https://htmlacademy.ru/profile/id105927).
 
 ---
 
