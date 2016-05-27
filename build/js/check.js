@@ -1,15 +1,13 @@
 ﻿function getMessage(a, b) {
-    if (typeof a == 'boolean') {
+    if (typeof a === 'boolean') {
         if (a) {
             return 'Переданное GIF-изображение анимировано и содержит ' + b + ' кадров';
         } else {
             return 'Переданное GIF-изображение не анимировано';
         }
-    }
-    else if (typeof a == 'number') {
+    } else if (typeof a === 'number') {
         return 'Переданное SVG-изображение содержит ' + a + ' объектов и ' + b * 4 + ' атрибутов';
-    }
-    else if (Array.isArray(a)) {
+    } else if (Array.isArray(a)) {
         if (Array.isArray(b)) {
             return 'Общая площадь артефактов сжатия: ' + getSquare(a, b) + ' пикселей';
         } else {
