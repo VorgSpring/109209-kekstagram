@@ -10,9 +10,6 @@
     else if (typeof a == 'number') {
         return 'Переданное SVG-изображение содержит ' + a + ' объектов и ' + b * 4 + ' атрибутов';
     }
-    else if (typeof a == 'string') {
-
-    }
     else if (Array.isArray(a)) {
         if (Array.isArray(b)) {
             var square = null;
