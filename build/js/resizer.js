@@ -91,7 +91,9 @@
       // Толщина линии.
       this._ctx.lineWidth = 6;
       // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
+      //this._ctx.strokeStyle = '#ffe753';
+      
+      this._ctx.fillStyle = '#ffe753';
       // Размер штрихов. Первый элемент массива задает длину штриха, второй
       // расстояние между соседними штрихами.
       this._ctx.setLineDash([15, 10]);
@@ -117,12 +119,39 @@
 
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
-          -resizeConstraint - lineWidth,
-          -resizeConstraint - lineWidth,
-          this._resizeConstraint.side - lineWidth,
-          this._resizeConstraint.side - lineWidth);
-
+      //this._ctx.strokeRect(
+      //    -resizeConstraint - lineWidth,
+      //    -resizeConstraint - lineWidth,
+      //    this._resizeConstraint.side - lineWidth,
+      //    this._resizeConstraint.side - lineWidth);
+      
+      //Отрисовка пунктирной рамки (Дополнительное задание)
+      var x = -resizeConstraint - lineWidth * 4;
+      var y = -resizeConstraint - lineWidth;
+      while (x < (resizeConstraint - lineWidth * 3)) {
+          this._ctx.beginPath();
+          x += lineWidth * 3;
+          this._ctx.arc(x, y, lineWidth, 0, Math.PI * 2, false);
+          this._ctx.fill();
+      }
+      while (y < (resizeConstraint - lineWidth * 3)) {
+          this._ctx.beginPath();
+          y += lineWidth * 3;
+          this._ctx.arc(x, y, lineWidth, 0, Math.PI * 2, false);
+          this._ctx.fill();
+      }
+      while (x > (-resizeConstraint - lineWidth)) {
+          this._ctx.beginPath();
+          x -= lineWidth * 3;
+          this._ctx.arc(x, y, lineWidth, 0, Math.PI * 2, false);
+          this._ctx.fill();
+      }
+      while (y > (-resizeConstraint - lineWidth)) {
+          this._ctx.beginPath();
+          y -= lineWidth * 3;
+          this._ctx.arc(x, y, lineWidth, 0, Math.PI * 2, false);
+          this._ctx.fill();
+      }
       // Отрисовка затемненной области
       this._ctx.beginPath();
       this._ctx.fillStyle = 'rgba(0, 0, 0, .8)';
@@ -138,14 +167,14 @@
           -resizeConstraint - this._ctx.lineWidth);
 
       this._ctx.lineTo(
-          resizeConstraint - lineWidth,
+          resizeConstraint - this._ctx.lineWidth,
           -resizeConstraint - this._ctx.lineWidth);
       this._ctx.lineTo(
-          resizeConstraint - lineWidth,
-          resizeConstraint - lineWidth);
+          resizeConstraint - this._ctx.lineWidth,
+          resizeConstraint - this._ctx.lineWidth);
       this._ctx.lineTo(
           -resizeConstraint - this._ctx.lineWidth,
-          resizeConstraint - lineWidth);
+          resizeConstraint - this._ctx.lineWidth);
       this._ctx.lineTo(
           -resizeConstraint - this._ctx.lineWidth,
           -resizeConstraint - this._ctx.lineWidth);
