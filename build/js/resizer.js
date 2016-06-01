@@ -102,6 +102,9 @@
       // Подробней см. строку 132.
       this._ctx.save();
 
+      // Добавим несколько переменных
+      var resizeConstraint = this._resizeConstraint.side / 2;
+      var lineWidth = this._ctx.lineWidth / 2;
       // Установка начальной точки системы координат в центр холста.
       this._ctx.translate(this._container.width / 2, this._container.height / 2);
 
@@ -115,10 +118,10 @@
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
       this._ctx.strokeRect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+          -resizeConstraint - lineWidth,
+          -resizeConstraint - lineWidth,
+          this._resizeConstraint.side - lineWidth,
+          this._resizeConstraint.side - lineWidth);
 
       // Отрисовка затемненной области
       this._ctx.beginPath();
@@ -131,21 +134,21 @@
       this._ctx.lineTo(displX, displY);
 
       this._ctx.moveTo(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+          -resizeConstraint - this._ctx.lineWidth,
+          -resizeConstraint - this._ctx.lineWidth);
 
       this._ctx.lineTo(
-          this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+          resizeConstraint - lineWidth,
+          -resizeConstraint - this._ctx.lineWidth);
       this._ctx.lineTo(
-          this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2);
+          resizeConstraint - lineWidth,
+          resizeConstraint - lineWidth);
       this._ctx.lineTo(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth,
-          this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2);
+          -resizeConstraint - this._ctx.lineWidth,
+          resizeConstraint - lineWidth);
       this._ctx.lineTo(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+          -resizeConstraint - this._ctx.lineWidth,
+          -resizeConstraint - this._ctx.lineWidth);
 
       this._ctx.fill('evenodd');
 
@@ -153,8 +156,8 @@
       this._ctx.font = '16px Arial';
       this._ctx.fillStyle = 'white';
       this._ctx.textAlign = 'center';
-      this._ctx.textBaseline = "bottom";
-      this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight, 0, (-this._resizeConstraint.side / 2) - this._ctx.lineWidth);
+      this._ctx.textBaseline = 'bottom';
+      this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight, 0, -resizeConstraint - this._ctx.lineWidth);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
