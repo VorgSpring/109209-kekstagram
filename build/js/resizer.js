@@ -90,35 +90,89 @@
 
       // Толщина линии.
       this._ctx.lineWidth = 6;
-      // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
-      // Размер штрихов. Первый элемент массива задает длину штриха, второй
-      // расстояние между соседними штрихами.
-      this._ctx.setLineDash([15, 10]);
-      // Смещение первого штриха от начала линии.
-      this._ctx.lineDashOffset = 7;
 
       // Сохранение состояния канваса.
-      // Подробней см. строку 132.
       this._ctx.save();
 
+      // Добавим несколько переменных
+      var resizeConstraint = this._resizeConstraint.side / 2;
+      var lineWidth = this._ctx.lineWidth / 2;
       // Установка начальной точки системы координат в центр холста.
       this._ctx.translate(this._container.width / 2, this._container.height / 2);
 
-      var displX = -(this._resizeConstraint.x + this._resizeConstraint.side / 2);
-      var displY = -(this._resizeConstraint.y + this._resizeConstraint.side / 2);
+      var displX = -(this._resizeConstraint.x + resizeConstraint);
+      var displY = -(this._resizeConstraint.y + resizeConstraint);
       // Отрисовка изображения на холсте. Параметры задают изображение, которое
       // нужно отрисовать и координаты его верхнего левого угла.
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
 
-      // Отрисовка прямоугольника, обозначающего область изображения после
-      // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+      // Отрисовка рамки зиг-заг(Совсем дополнительное задание)
+      this._ctx.beginPath();
+      // Начальные координаты
+      var x = -resizeConstraint - lineWidth;
+      var y = -resizeConstraint - lineWidth;
+      // Количество шагов
+      var numberOfSteps = 30;
+      // Шаг перемещения
+      var step = Math.ceil(this._resizeConstraint.side / numberOfSteps);
+      this._ctx.moveTo(x, y);
+
+      for (var i = 0; i < numberOfSteps; i++) {
+        x += step;
+        if (i % 2 === 0) {
+          y -= step;
+        } else {
+          y += step;
+        }
+        this._ctx.lineTo(x, y);
+      }
+      for (i = 0; i < numberOfSteps; i++) {
+        y += step;
+        if (i % 2 === 0) {
+          x -= step;
+        } else {
+          x += step;
+        }
+        this._ctx.lineTo(x, y);
+      }
+      for (i = 0; i < numberOfSteps; i++) {
+        x -= step;
+        if (i % 2 === 0) {
+          y += step;
+        } else {
+          y -= step;
+        }
+        this._ctx.lineTo(x, y);
+      }
+      for (i = 0; i < numberOfSteps; i++) {
+        y -= step;
+        if (i % 2 === 0) {
+          x += step;
+        } else {
+          x -= step;
+        }
+        this._ctx.lineTo(x, y);
+      }
+      this._ctx.strokeStyle = '#ffe753';
+      this._ctx.stroke();
+      this._ctx.closePath();
+      this._ctx.moveTo(displX, displY);
+
+      // Отрисовка затемненной области
+      this._ctx.lineTo(this._container.width + displX, displY);
+      this._ctx.lineTo(this._container.width + displX, this._container.height + displY);
+      this._ctx.lineTo(displX, this._container.height + displY);
+      this._ctx.lineTo(displX, displY);
+      this._ctx.fillStyle = 'rgba(0, 0, 0, .8)';
+      this._ctx.fill('evenodd');
+
+      // Выводим текст с размерами фото
+      this._ctx.font = '16px Arial';
+      this._ctx.fillStyle = 'white';
+      this._ctx.textAlign = 'center';
+      this._ctx.textBaseline = 'bottom';
+      this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight, 0, -resizeConstraint - this._ctx.lineWidth - 10);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
