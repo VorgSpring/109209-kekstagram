@@ -68,10 +68,51 @@
   }
 
   /**
+   * Проверяет, возможно ли перевести value в число.
+   * @return {boolean}
+   */
+  function isNumeric(value) {
+    return !isNaN(parseInt(value, 10)) && isFinite(value);
+  }
+
+  /**
    * Проверяет, валидны ли данные, в форме кадрирования.
    * @return {boolean}
    */
   function resizeFormIsValid() {
+    fieldSide.setCustomValidity('');
+    // Получаем данные с формы
+    // Проверяем  возможно ли перевести полученные данные в число,
+    // если возможно переводим в число
+    if (isNumeric(fieldOnLeft.value) && isNumeric(fieldFromTop.value) && isNumeric(fieldSide.value)) {
+      var positionOnLeft = parseInt(fieldOnLeft.value, 10);
+      var positionFromTop = parseInt(fieldFromTop.value, 10);
+      var sizeSide = parseInt(fieldSide.value, 10);
+
+      // Поля «сверху» и «слева» не могут быть отрицательными.
+      if (positionOnLeft < 0 || positionFromTop < 0) {
+        fieldSide.setCustomValidity('Поля «сверху» и «слева» не могут быть отрицательными.');
+        return false;
+      }
+
+    } else {
+      fieldSide.setCustomValidity('В поле необходимо ввести целое число.');
+      return false;
+    }
+
+    // Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.
+    var amountFieldsLeftAndSide = positionOnLeft + sizeSide;
+    if (amountFieldsLeftAndSide > currentResizer._image.naturalWidth) {
+      fieldSide.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
+      return false;
+    }
+
+    // Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.
+    var amountFieldsTopAndSide = positionFromTop + sizeSide;
+    if (amountFieldsTopAndSide > currentResizer._image.naturalHeight) {
+      fieldSide.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
+      return false;
+    }
     return true;
   }
 
@@ -81,11 +122,80 @@
    */
   var uploadForm = document.forms['upload-select-image'];
 
+  ///**
+  // * Установка максимальных значений для полей «сверху» и «слева»
+  // * @param {HTMLFormElement} left
+  // * @param {HTMLFormElement} top
+  // * @param {number} side
+  // */
+  //var setFieldsConstraint = function (left, top, side) {
+  //  var maxLeft = currentResizer._image.naturalWidth - side;
+  //  if (maxLeft < left.value) {
+  //    left.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
+  //  } else {
+  //    left.setCustomValidity('');
+  //  }
+  //  left.max = maxLeft;
+  //  var maxTop = currentResizer._image.naturalHeight - side;
+  //  if (maxTop < top.value) {
+  //    top.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
+  //  } else {
+  //    top.setCustomValidity('');
+  //  }
+  //  top.max = maxTop;
+  //}
+
+  ///**
+  // * Обработчик изменения значения поля «сторона»
+  // */
+  //fieldSide.oninput = function () {
+  //  fieldSide.setCustomValidity('');
+  //  if (isNumeric(fieldSide.value) && fieldSide.value <= fieldSide.max) {
+  //    setFieldsConstraint(fieldOnLeft, fieldFromTop, fieldSide.value);
+  //  } else if (fieldSide.value > fieldSide.max) {
+  //    fieldSide.setCustomValidity('Значение в поле «сторона» превышает ширину изображения.');
+  //  } else {
+  //    fieldSide.setCustomValidity('В поле «сторона» необходимо ввести целое число.');
+  //  }
+  //}
+
   /**
    * Форма кадрирования изображения.
    * @type {HTMLFormElement}
    */
   var resizeForm = document.forms['upload-resize'];
+
+  /**
+   * Поля ввода данных.
+   * @type {HTMLFormElement}
+   */
+  var fieldOnLeft = document.querySelector('#resize-x');
+  var fieldFromTop = document.querySelector('#resize-y');
+  var fieldSide = document.querySelector('#resize-size');
+  var forwardButton = document.querySelector('#resize-fwd');
+
+  /**
+   * Создаем новый элемент для вывода сообщений об ошибках
+   */
+  var errorMessage = document.createElement('div');
+  errorMessage.classList.add('upload-form-error');
+  resizeForm.appendChild(errorMessage);
+
+  /**
+   * Обработчик изменения формы
+   */
+  resizeForm.oninput = function(evt) {
+    evt.preventDefault();
+
+    if (resizeFormIsValid()) {
+      forwardButton.style.opacity = 1;
+      forwardButton.disabled = false;
+    } else {
+      forwardButton.style.opacity = 0.3;
+      forwardButton.disabled = true;
+    }
+    errorMessage.innerHTML = fieldSide.validationMessage;
+  };
 
   /**
    * Форма добавления фильтра.
@@ -160,9 +270,22 @@
           resizeForm.classList.remove('invisible');
 
           hideMessage();
+
+          //// Установка минимальных значений для полей формы
+          //fieldOnLeft.min = 0;
+          //fieldFromTop.min = 0;
+          //fieldSide.min = 0;
+
+          //// Максимальное значение для поля «сторона» это меньшая сторона фотографии
+          //if (currentResizer._image.naturalWidth < currentResizer._image.naturalHeight) {
+          //  fieldSide.max = currentResizer._image.naturalWidth;
+          //} else {
+          //  fieldSide.max = currentResizer._image.naturalHeight;
+          //}
         };
 
         fileReader.readAsDataURL(element.files[0]);
+
       } else {
         // Показ сообщения об ошибке, если загружаемый файл, не является
         // поддерживаемым изображением.

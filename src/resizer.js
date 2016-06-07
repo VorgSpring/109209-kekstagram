@@ -154,9 +154,9 @@
         }
         this._ctx.lineTo(x, y);
       }
+      this._ctx.closePath();
       this._ctx.strokeStyle = '#ffe753';
       this._ctx.stroke();
-      this._ctx.closePath();
       this._ctx.moveTo(displX, displY);
 
       // Отрисовка затемненной области

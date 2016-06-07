@@ -161,6 +161,18 @@ body {
   display: block;
 }
 
+.upload-form-error {
+    position: absolute;
+    left: 0;
+    bottom: 70px;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    line-height: 15px;
+    font-weight: 300;
+    color: red;
+}
+
 .upload-form-controls {
   position: absolute;
   right: 0;
