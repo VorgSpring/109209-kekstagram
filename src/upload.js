@@ -7,7 +7,7 @@
 
 'use strict';
 
-(function () {
+(function() {
   /** @enum {string} */
   var FileType = {
     'GIF': '',
@@ -72,7 +72,7 @@
    * @return {boolean}
    */
   function isNumeric(value) {
-    return !isNaN(parseInt(value)) && isFinite(value);
+    return !isNaN(parseInt(value, 10)) && isFinite(value);
   }
 
   /**
@@ -82,12 +82,12 @@
   function resizeFormIsValid() {
     fieldSide.setCustomValidity('');
     // Получаем данные с формы
-    // Проверяем  возможно ли перевести полученные данные в число, 
+    // Проверяем  возможно ли перевести полученные данные в число,
     // если возможно переводим в число
     if (isNumeric(fieldOnLeft.value) && isNumeric(fieldFromTop.value) && isNumeric(fieldSide.value)) {
-      var positionOnLeft = parseInt(fieldOnLeft.value);
-      var positionFromTop = parseInt(fieldFromTop.value);
-      var sizeSide = parseInt(fieldSide.value);
+      var positionOnLeft = parseInt(fieldOnLeft.value, 10);
+      var positionFromTop = parseInt(fieldFromTop.value, 10);
+      var sizeSide = parseInt(fieldSide.value, 10);
 
       // Поля «сверху» и «слева» не могут быть отрицательными.
       if (positionOnLeft < 0 || positionFromTop < 0) {
@@ -147,7 +147,7 @@
 
   ///**
   // * Обработчик изменения значения поля «сторона»
-  // */ 
+  // */
   //fieldSide.oninput = function () {
   //  fieldSide.setCustomValidity('');
   //  if (isNumeric(fieldSide.value) && fieldSide.value <= fieldSide.max) {
@@ -184,7 +184,7 @@
   /**
    * Обработчик изменения формы
    */
-  resizeForm.oninput = function (evt) {
+  resizeForm.oninput = function(evt) {
     evt.preventDefault();
 
     if (resizeFormIsValid()) {
@@ -195,7 +195,7 @@
       forwardButton.disabled = true;
     }
     errorMessage.innerHTML = fieldSide.validationMessage;
-  }
+  };
 
   /**
    * Форма добавления фильтра.
@@ -249,7 +249,7 @@
    * и показывается форма кадрирования.
    * @param {Event} evt
    */
-  uploadForm.onchange = function (evt) {
+  uploadForm.onchange = function(evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
       // Проверка типа загружаемого файла, тип должен быть изображением
@@ -259,7 +259,7 @@
 
         showMessage(Action.UPLOADING);
 
-        fileReader.onload = function () {
+        fileReader.onload = function() {
           cleanupResizer();
 
           currentResizer = new Resizer(fileReader.result);
@@ -299,7 +299,7 @@
    * и обновляет фон.
    * @param {Event} evt
    */
-  resizeForm.onreset = function (evt) {
+  resizeForm.onreset = function(evt) {
     evt.preventDefault();
 
     cleanupResizer();
@@ -314,7 +314,7 @@
    * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
-  resizeForm.onsubmit = function (evt) {
+  resizeForm.onsubmit = function(evt) {
     evt.preventDefault();
 
     if (resizeFormIsValid()) {
@@ -329,7 +329,7 @@
    * Сброс формы фильтра. Показывает форму кадрирования.
    * @param {Event} evt
    */
-  filterForm.onreset = function (evt) {
+  filterForm.onreset = function(evt) {
     evt.preventDefault();
 
     filterForm.classList.add('invisible');
@@ -341,7 +341,7 @@
    * записав сохраненный фильтр в cookie.
    * @param {Event} evt
    */
-  filterForm.onsubmit = function (evt) {
+  filterForm.onsubmit = function(evt) {
     evt.preventDefault();
 
     cleanupResizer();
@@ -355,7 +355,7 @@
    * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
    * выбранному значению в форме.
    */
-  filterForm.onchange = function () {
+  filterForm.onchange = function() {
     if (!filterMap) {
       // Ленивая инициализация. Объект не создается до тех пор, пока
       // не понадобится прочитать его в первый раз, а после этого запоминается
@@ -367,7 +367,7 @@
       };
     }
 
-    var selectedFilter = [].filter.call(filterForm['upload-filter'], function (item) {
+    var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
     })[0].value;
 
