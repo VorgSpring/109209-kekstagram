@@ -7,6 +7,9 @@
 
 'use strict';
 
+// Подключаем библиотеку browser-cookies
+var browserCookies = require('browser-cookies');
+
 (function () {
   /** @enum {string} */
   var FileType = {
@@ -156,7 +159,7 @@
     if (counterError > 0) {
       return false;
     } else {
-      true;
+      return true;
     }
   }
 
@@ -224,6 +227,10 @@
    * @type {HTMLFormElement}
    */
   var filterForm = document.forms['upload-filter'];
+
+  filterForm.onload = function () {
+
+  }
 
   /**
    * @type {HTMLImageElement}
@@ -332,6 +339,11 @@
 
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
+
+      var filterName = browserCookies.get('filter') || 'none';
+      filterImage.className ='filter-image-preview filter-' + filterName;
+      var filter = document.querySelector('#upload-filter-' + filterName);
+      filter.setAttribute('checked', true);
     }
   };
 
@@ -359,7 +371,30 @@
 
     filterForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
+
+    var filterChacked = document.querySelector('.upload-filter-controls input:checked').value;
+    browserCookies.set('filter', filterChacked, { expires: Date.now() + getTimeLifeCookie() });
   };
+
+  /**
+   * Получить веремя жизни cookie
+   * @return {Date}
+   */
+  function getTimeLifeCookie() {
+    var now = new Date();
+    var date = new Date();
+    date.setMonth(6);
+    date.setDate(17);
+    var lifeTimeCookie = 0;
+
+    if (now > date) {
+      lifeTimeCookie = now - date;
+    } else {
+      lifeTimeCookie = now - date.setFullYear(now.getFullYear() - 1);
+    }
+
+    return lifeTimeCookie;
+  }
 
   /**
    * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
