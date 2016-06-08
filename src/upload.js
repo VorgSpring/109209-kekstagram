@@ -7,7 +7,7 @@
 
 'use strict';
 
-(function() {
+(function () {
   /** @enum {string} */
   var FileType = {
     'GIF': '',
@@ -75,45 +75,89 @@
     return !isNaN(parseInt(value, 10)) && isFinite(value);
   }
 
-  /**
-   * Проверяет, валидны ли данные, в форме кадрирования.
-   * @return {boolean}
-   */
   function resizeFormIsValid() {
+
+    // Обнуляем ошибки всех полей 
+    fieldOnLeft.setCustomValidity('');
+    fieldFromTop.setCustomValidity('');
     fieldSide.setCustomValidity('');
+
+    // Счетчик ошибок
+    var counterError = 0;
+
     // Получаем данные с формы
     // Проверяем  возможно ли перевести полученные данные в число,
     // если возможно переводим в число
-    if (isNumeric(fieldOnLeft.value) && isNumeric(fieldFromTop.value) && isNumeric(fieldSide.value)) {
+    if (isNumeric(fieldOnLeft.value)) {
       var positionOnLeft = parseInt(fieldOnLeft.value, 10);
-      var positionFromTop = parseInt(fieldFromTop.value, 10);
-      var sizeSide = parseInt(fieldSide.value, 10);
-
-      // Поля «сверху» и «слева» не могут быть отрицательными.
-      if (positionOnLeft < 0 || positionFromTop < 0) {
-        fieldSide.setCustomValidity('Поля «сверху» и «слева» не могут быть отрицательными.');
-        return false;
-      }
-
     } else {
-      fieldSide.setCustomValidity('В поле необходимо ввести целое число.');
-      return false;
+      fieldOnLeft.setCustomValidity('В поле «слева» необходимо ввести целое число.');
+      counterError++;
+    }
+    if (isNumeric(fieldFromTop.value)) {
+      var positionFromTop = parseInt(fieldFromTop.value, 10);
+    } else {
+      fieldFromTop.setCustomValidity('В поле «сверху» необходимо ввести целое число.');
+      counterError++;
+    }
+    if (isNumeric(fieldSide.value)) {
+      var sizeSide = parseInt(fieldSide.value, 10);
+    } else {
+      fieldSide.setCustomValidity('В поле «сторона» необходимо ввести целое число.');
+      counterError++;
     }
 
-    // Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.
-    var amountFieldsLeftAndSide = positionOnLeft + sizeSide;
-    if (amountFieldsLeftAndSide > currentResizer._image.naturalWidth) {
-      fieldSide.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
-      return false;
+    // Поля не могут быть отрицательными.
+    if (positionOnLeft < 0) {
+      fieldOnLeft.setCustomValidity('Поле «слева» не может быть отрицательным.');
+      counterError++;
     }
 
-    // Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.
-    var amountFieldsTopAndSide = positionFromTop + sizeSide;
-    if (amountFieldsTopAndSide > currentResizer._image.naturalHeight) {
-      fieldSide.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
-      return false;
+    if (positionFromTop < 0) {
+      fieldFromTop.setCustomValidity('Поле «сверху» не может быть отрицательным.');
+      counterError++;
     }
-    return true;
+
+    if (positionFromTop < 0) {
+      fieldSide.setCustomValidity('Поле «сторона» не может быть отрицательным.');
+      counterError++;
+    }
+
+    // Установка максимальных значений
+    // Максимальное значение для поля «сторона» это меньшая сторона фотографии
+    if (currentResizer._image.naturalWidth < currentResizer._image.naturalHeight) {
+      fieldSide.max = currentResizer._image.naturalWidth;
+    } else {
+      fieldSide.max = currentResizer._image.naturalHeight;
+    }
+
+    // Установка максимальных значений для полей «сверху» и «слева»
+    fieldOnLeft.max = currentResizer._image.naturalWidth - sizeSide;
+    fieldFromTop.max = currentResizer._image.naturalHeight - sizeSide;
+
+
+    // Проверка допустимых значений
+    if (positionOnLeft > fieldOnLeft.max) {
+      fieldOnLeft.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
+      counterError++;
+    }
+
+    if (positionFromTop > fieldFromTop.max) {
+      fieldFromTop.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
+      counterError++;
+    }
+
+    if (sizeSide > fieldSide.max) {
+      fieldSide.setCustomValidity('Значение в поле «сторона» превышает допустимое значение.');
+      counterError++;
+    }
+
+    // Если есть ошибки возвращяем false
+    if (counterError > 0) {
+      return false;
+    } else {
+      true;
+    }
   }
 
   /**
@@ -121,43 +165,6 @@
    * @type {HTMLFormElement}
    */
   var uploadForm = document.forms['upload-select-image'];
-
-  ///**
-  // * Установка максимальных значений для полей «сверху» и «слева»
-  // * @param {HTMLFormElement} left
-  // * @param {HTMLFormElement} top
-  // * @param {number} side
-  // */
-  //var setFieldsConstraint = function (left, top, side) {
-  //  var maxLeft = currentResizer._image.naturalWidth - side;
-  //  if (maxLeft < left.value) {
-  //    left.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
-  //  } else {
-  //    left.setCustomValidity('');
-  //  }
-  //  left.max = maxLeft;
-  //  var maxTop = currentResizer._image.naturalHeight - side;
-  //  if (maxTop < top.value) {
-  //    top.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
-  //  } else {
-  //    top.setCustomValidity('');
-  //  }
-  //  top.max = maxTop;
-  //}
-
-  ///**
-  // * Обработчик изменения значения поля «сторона»
-  // */
-  //fieldSide.oninput = function () {
-  //  fieldSide.setCustomValidity('');
-  //  if (isNumeric(fieldSide.value) && fieldSide.value <= fieldSide.max) {
-  //    setFieldsConstraint(fieldOnLeft, fieldFromTop, fieldSide.value);
-  //  } else if (fieldSide.value > fieldSide.max) {
-  //    fieldSide.setCustomValidity('Значение в поле «сторона» превышает ширину изображения.');
-  //  } else {
-  //    fieldSide.setCustomValidity('В поле «сторона» необходимо ввести целое число.');
-  //  }
-  //}
 
   /**
    * Форма кадрирования изображения.
@@ -174,6 +181,11 @@
   var fieldSide = document.querySelector('#resize-size');
   var forwardButton = document.querySelector('#resize-fwd');
 
+  // Установка минимальных значений для полей формы
+  fieldOnLeft.min = 0;
+  fieldFromTop.min = 0;
+  fieldSide.min = 0;
+
   /**
    * Создаем новый элемент для вывода сообщений об ошибках
    */
@@ -182,9 +194,19 @@
   resizeForm.appendChild(errorMessage);
 
   /**
+   * Выводит сообщения об ошибках
+   * @param {HTMLFormElement} leftField
+   * @param {HTMLFormElement} topField
+   * @param {HTMLFormElement} sideField
+   */
+  function showError(leftField, topField, sideField) {
+    errorMessage.innerHTML = leftField.validationMessage + '<br>' + topField.validationMessage + '<br>' + sideField.validationMessage;
+  }
+
+  /**
    * Обработчик изменения формы
    */
-  resizeForm.oninput = function(evt) {
+  resizeForm.oninput = function (evt) {
     evt.preventDefault();
 
     if (resizeFormIsValid()) {
@@ -194,7 +216,7 @@
       forwardButton.style.opacity = 0.3;
       forwardButton.disabled = true;
     }
-    errorMessage.innerHTML = fieldSide.validationMessage;
+    showError(fieldOnLeft, fieldFromTop, fieldSide);
   };
 
   /**
@@ -249,7 +271,7 @@
    * и показывается форма кадрирования.
    * @param {Event} evt
    */
-  uploadForm.onchange = function(evt) {
+  uploadForm.onchange = function (evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
       // Проверка типа загружаемого файла, тип должен быть изображением
@@ -259,7 +281,7 @@
 
         showMessage(Action.UPLOADING);
 
-        fileReader.onload = function() {
+        fileReader.onload = function () {
           cleanupResizer();
 
           currentResizer = new Resizer(fileReader.result);
@@ -270,18 +292,6 @@
           resizeForm.classList.remove('invisible');
 
           hideMessage();
-
-          //// Установка минимальных значений для полей формы
-          //fieldOnLeft.min = 0;
-          //fieldFromTop.min = 0;
-          //fieldSide.min = 0;
-
-          //// Максимальное значение для поля «сторона» это меньшая сторона фотографии
-          //if (currentResizer._image.naturalWidth < currentResizer._image.naturalHeight) {
-          //  fieldSide.max = currentResizer._image.naturalWidth;
-          //} else {
-          //  fieldSide.max = currentResizer._image.naturalHeight;
-          //}
         };
 
         fileReader.readAsDataURL(element.files[0]);
@@ -299,7 +309,7 @@
    * и обновляет фон.
    * @param {Event} evt
    */
-  resizeForm.onreset = function(evt) {
+  resizeForm.onreset = function (evt) {
     evt.preventDefault();
 
     cleanupResizer();
@@ -314,7 +324,7 @@
    * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
-  resizeForm.onsubmit = function(evt) {
+  resizeForm.onsubmit = function (evt) {
     evt.preventDefault();
 
     if (resizeFormIsValid()) {
@@ -329,7 +339,7 @@
    * Сброс формы фильтра. Показывает форму кадрирования.
    * @param {Event} evt
    */
-  filterForm.onreset = function(evt) {
+  filterForm.onreset = function (evt) {
     evt.preventDefault();
 
     filterForm.classList.add('invisible');
@@ -341,7 +351,7 @@
    * записав сохраненный фильтр в cookie.
    * @param {Event} evt
    */
-  filterForm.onsubmit = function(evt) {
+  filterForm.onsubmit = function (evt) {
     evt.preventDefault();
 
     cleanupResizer();
@@ -355,7 +365,7 @@
    * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
    * выбранному значению в форме.
    */
-  filterForm.onchange = function() {
+  filterForm.onchange = function () {
     if (!filterMap) {
       // Ленивая инициализация. Объект не создается до тех пор, пока
       // не понадобится прочитать его в первый раз, а после этого запоминается
@@ -367,7 +377,7 @@
       };
     }
 
-    var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
+    var selectedFilter = [].filter.call(filterForm['upload-filter'], function (item) {
       return item.checked;
     })[0].value;
 
