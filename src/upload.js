@@ -423,8 +423,10 @@ var browserCookies = require('browser-cookies');
     // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
 
+    // Устанавливаем значения последнего выбранного фильтра
     lastFilter = document.querySelector('.upload-filter-controls input:checked').value;
 
+    // Записываем в cookie
     browserCookies.set(cookieNameFilter, lastFilter, { expires: Date.now() + getTimeLifeCookie() });
   };
 
