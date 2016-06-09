@@ -7,6 +7,9 @@
 
 'use strict';
 
+// Подключаем библиотеку browser-cookies
+var browserCookies = require('browser-cookies');
+
 (function() {
   /** @enum {string} */
   var FileType = {
@@ -75,45 +78,89 @@
     return !isNaN(parseInt(value, 10)) && isFinite(value);
   }
 
-  /**
-   * Проверяет, валидны ли данные, в форме кадрирования.
-   * @return {boolean}
-   */
   function resizeFormIsValid() {
+
+    // Обнуляем ошибки всех полей
+    fieldOnLeft.setCustomValidity('');
+    fieldFromTop.setCustomValidity('');
     fieldSide.setCustomValidity('');
+
+    // Счетчик ошибок
+    var counterError = 0;
+
     // Получаем данные с формы
     // Проверяем  возможно ли перевести полученные данные в число,
     // если возможно переводим в число
-    if (isNumeric(fieldOnLeft.value) && isNumeric(fieldFromTop.value) && isNumeric(fieldSide.value)) {
+    if (isNumeric(fieldOnLeft.value)) {
       var positionOnLeft = parseInt(fieldOnLeft.value, 10);
-      var positionFromTop = parseInt(fieldFromTop.value, 10);
-      var sizeSide = parseInt(fieldSide.value, 10);
-
-      // Поля «сверху» и «слева» не могут быть отрицательными.
-      if (positionOnLeft < 0 || positionFromTop < 0) {
-        fieldSide.setCustomValidity('Поля «сверху» и «слева» не могут быть отрицательными.');
-        return false;
-      }
-
     } else {
-      fieldSide.setCustomValidity('В поле необходимо ввести целое число.');
-      return false;
+      fieldOnLeft.setCustomValidity('В поле «слева» необходимо ввести целое число.');
+      counterError++;
+    }
+    if (isNumeric(fieldFromTop.value)) {
+      var positionFromTop = parseInt(fieldFromTop.value, 10);
+    } else {
+      fieldFromTop.setCustomValidity('В поле «сверху» необходимо ввести целое число.');
+      counterError++;
+    }
+    if (isNumeric(fieldSide.value)) {
+      var sizeSide = parseInt(fieldSide.value, 10);
+    } else {
+      fieldSide.setCustomValidity('В поле «сторона» необходимо ввести целое число.');
+      counterError++;
     }
 
-    // Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.
-    var amountFieldsLeftAndSide = positionOnLeft + sizeSide;
-    if (amountFieldsLeftAndSide > currentResizer._image.naturalWidth) {
-      fieldSide.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
-      return false;
+    // Поля не могут быть отрицательными.
+    if (positionOnLeft < 0) {
+      fieldOnLeft.setCustomValidity('Поле «слева» не может быть отрицательным.');
+      counterError++;
     }
 
-    // Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.
-    var amountFieldsTopAndSide = positionFromTop + sizeSide;
-    if (amountFieldsTopAndSide > currentResizer._image.naturalHeight) {
-      fieldSide.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
-      return false;
+    if (positionFromTop < 0) {
+      fieldFromTop.setCustomValidity('Поле «сверху» не может быть отрицательным.');
+      counterError++;
     }
-    return true;
+
+    if (sizeSide < 1) {
+      fieldSide.setCustomValidity('Поле «сторона» не может быть меньше "1".');
+      counterError++;
+    }
+
+    // Установка максимальных значений
+    // Максимальное значение для поля «сторона» это меньшая сторона фотографии
+    if (currentResizer._image.naturalWidth < currentResizer._image.naturalHeight) {
+      fieldSide.max = currentResizer._image.naturalWidth;
+    } else {
+      fieldSide.max = currentResizer._image.naturalHeight;
+    }
+
+    // Установка максимальных значений для полей «сверху» и «слева»
+    fieldOnLeft.max = currentResizer._image.naturalWidth - sizeSide;
+    fieldFromTop.max = currentResizer._image.naturalHeight - sizeSide;
+
+
+    // Проверка допустимых значений
+    if (positionOnLeft > fieldOnLeft.max) {
+      fieldOnLeft.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
+      counterError++;
+    }
+
+    if (positionFromTop > fieldFromTop.max) {
+      fieldFromTop.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
+      counterError++;
+    }
+
+    if (sizeSide > fieldSide.max) {
+      fieldSide.setCustomValidity('Значение в поле «сторона» превышает допустимое значение.');
+      counterError++;
+    }
+
+    // Если есть ошибки возвращяем false
+    if (counterError > 0) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   /**
@@ -121,43 +168,6 @@
    * @type {HTMLFormElement}
    */
   var uploadForm = document.forms['upload-select-image'];
-
-  ///**
-  // * Установка максимальных значений для полей «сверху» и «слева»
-  // * @param {HTMLFormElement} left
-  // * @param {HTMLFormElement} top
-  // * @param {number} side
-  // */
-  //var setFieldsConstraint = function (left, top, side) {
-  //  var maxLeft = currentResizer._image.naturalWidth - side;
-  //  if (maxLeft < left.value) {
-  //    left.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
-  //  } else {
-  //    left.setCustomValidity('');
-  //  }
-  //  left.max = maxLeft;
-  //  var maxTop = currentResizer._image.naturalHeight - side;
-  //  if (maxTop < top.value) {
-  //    top.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
-  //  } else {
-  //    top.setCustomValidity('');
-  //  }
-  //  top.max = maxTop;
-  //}
-
-  ///**
-  // * Обработчик изменения значения поля «сторона»
-  // */
-  //fieldSide.oninput = function () {
-  //  fieldSide.setCustomValidity('');
-  //  if (isNumeric(fieldSide.value) && fieldSide.value <= fieldSide.max) {
-  //    setFieldsConstraint(fieldOnLeft, fieldFromTop, fieldSide.value);
-  //  } else if (fieldSide.value > fieldSide.max) {
-  //    fieldSide.setCustomValidity('Значение в поле «сторона» превышает ширину изображения.');
-  //  } else {
-  //    fieldSide.setCustomValidity('В поле «сторона» необходимо ввести целое число.');
-  //  }
-  //}
 
   /**
    * Форма кадрирования изображения.
@@ -174,12 +184,27 @@
   var fieldSide = document.querySelector('#resize-size');
   var forwardButton = document.querySelector('#resize-fwd');
 
+  // Установка минимальных значений для полей формы
+  fieldOnLeft.min = 0;
+  fieldFromTop.min = 0;
+  fieldSide.min = 1;
+
   /**
    * Создаем новый элемент для вывода сообщений об ошибках
    */
   var errorMessage = document.createElement('div');
   errorMessage.classList.add('upload-form-error');
   resizeForm.appendChild(errorMessage);
+
+  /**
+   * Выводит сообщения об ошибках
+   * @param {HTMLFormElement} leftField
+   * @param {HTMLFormElement} topField
+   * @param {HTMLFormElement} sideField
+   */
+  function showError(leftField, topField, sideField) {
+    errorMessage.innerHTML = leftField.validationMessage + '<br>' + topField.validationMessage + '<br>' + sideField.validationMessage;
+  }
 
   /**
    * Обработчик изменения формы
@@ -194,7 +219,7 @@
       forwardButton.style.opacity = 0.3;
       forwardButton.disabled = true;
     }
-    errorMessage.innerHTML = fieldSide.validationMessage;
+    showError(fieldOnLeft, fieldFromTop, fieldSide);
   };
 
   /**
@@ -207,6 +232,18 @@
    * @type {HTMLImageElement}
    */
   var filterImage = filterForm.querySelector('.filter-image-preview');
+
+  /**
+   * Значения последнего выбранного фильтра
+   * @type {string}
+   */
+  var lastFilter;
+
+  /**
+   * Название cookie
+   * @type {string}
+   */
+  var cookieNameFilter = 'filter';
 
   /**
    * @type {HTMLElement}
@@ -270,18 +307,6 @@
           resizeForm.classList.remove('invisible');
 
           hideMessage();
-
-          //// Установка минимальных значений для полей формы
-          //fieldOnLeft.min = 0;
-          //fieldFromTop.min = 0;
-          //fieldSide.min = 0;
-
-          //// Максимальное значение для поля «сторона» это меньшая сторона фотографии
-          //if (currentResizer._image.naturalWidth < currentResizer._image.naturalHeight) {
-          //  fieldSide.max = currentResizer._image.naturalWidth;
-          //} else {
-          //  fieldSide.max = currentResizer._image.naturalHeight;
-          //}
         };
 
         fileReader.readAsDataURL(element.files[0]);
@@ -322,6 +347,11 @@
 
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
+
+      var filterName = browserCookies.get(cookieNameFilter) || 'none';
+      filterImage.className = 'filter-image-preview filter-' + filterName;
+      var filterDefault = document.querySelector('#upload-filter-' + filterName);
+      filterDefault.setAttribute('checked', true);
     }
   };
 
@@ -352,6 +382,24 @@
   };
 
   /**
+   * Получить веремя жизни cookie
+   * @return {Date}
+   */
+  function getTimeLifeCookie() {
+    var dateNow = new Date();
+    var dateBirth = new Date(dateNow.getFullYear(), 5, 17);
+    var lifeTimeCookie = 0;
+
+    if (dateNow > dateBirth) {
+      lifeTimeCookie = dateNow - dateBirth;
+    } else {
+      lifeTimeCookie = dateNow - dateBirth.setFullYear(dateNow.getFullYear() - 1);
+    }
+
+    return lifeTimeCookie;
+  }
+
+  /**
    * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
    * выбранному значению в форме.
    */
@@ -366,7 +414,6 @@
         'sepia': 'filter-sepia'
       };
     }
-
     var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
     })[0].value;
@@ -375,6 +422,12 @@
     // убрать предыдущий примененный класс. Для этого нужно или запоминать его
     // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
+
+    // Устанавливаем значения последнего выбранного фильтра
+    lastFilter = document.querySelector('.upload-filter-controls input:checked').value;
+
+    // Записываем в cookie
+    browserCookies.set(cookieNameFilter, lastFilter, { expires: Date.now() + getTimeLifeCookie() });
   };
 
   cleanupResizer();
