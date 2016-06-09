@@ -121,7 +121,7 @@ var browserCookies = require('browser-cookies');
       counterError++;
     }
 
-    if (positionFromTop < 1) {
+    if (sizeSide < 1) {
       fieldSide.setCustomValidity('Поле «сторона» не может быть меньше "1".');
       counterError++;
     }
