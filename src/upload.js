@@ -121,8 +121,8 @@ var browserCookies = require('browser-cookies');
       counterError++;
     }
 
-    if (positionFromTop < 0) {
-      fieldSide.setCustomValidity('Поле «сторона» не может быть отрицательным.');
+    if (positionFromTop < 1) {
+      fieldSide.setCustomValidity('Поле «сторона» не может быть меньше "1".');
       counterError++;
     }
 
@@ -187,7 +187,7 @@ var browserCookies = require('browser-cookies');
   // Установка минимальных значений для полей формы
   fieldOnLeft.min = 0;
   fieldFromTop.min = 0;
-  fieldSide.min = 0;
+  fieldSide.min = 1;
 
   /**
    * Создаем новый элемент для вывода сообщений об ошибках
@@ -232,6 +232,18 @@ var browserCookies = require('browser-cookies');
    * @type {HTMLImageElement}
    */
   var filterImage = filterForm.querySelector('.filter-image-preview');
+
+  /**
+   * Значения последнего выбранного фильтра
+   * @type {string}
+   */
+  var lastFilter;
+
+  /**
+   * Название cookie
+   * @type {string}
+   */
+  var cookieNameFilter = 'filter';
 
   /**
    * @type {HTMLElement}
@@ -336,10 +348,10 @@ var browserCookies = require('browser-cookies');
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
 
-      var filterName = browserCookies.get('filter') || 'none';
+      var filterName = browserCookies.get(cookieNameFilter) || 'none';
       filterImage.className = 'filter-image-preview filter-' + filterName;
-      var filter = document.querySelector('#upload-filter-' + filterName);
-      filter.setAttribute('checked', true);
+      var filterDefault = document.querySelector('#upload-filter-' + filterName);
+      filterDefault.setAttribute('checked', true);
     }
   };
 
@@ -368,8 +380,7 @@ var browserCookies = require('browser-cookies');
     filterForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
 
-    var filterChacked = document.querySelector('.upload-filter-controls input:checked').value;
-    browserCookies.set('filter', filterChacked, { expires: Date.now() + getTimeLifeCookie() });
+    browserCookies.set(cookieNameFilter, lastFilter, { expires: Date.now() + getTimeLifeCookie() });
   };
 
   /**
@@ -377,16 +388,14 @@ var browserCookies = require('browser-cookies');
    * @return {Date}
    */
   function getTimeLifeCookie() {
-    var now = new Date();
-    var date = new Date();
-    date.setMonth(6);
-    date.setDate(17);
+    var dateNow = new Date();
+    var dateBirth = new Date(dateNow.getFullYear(), 5, 17);
     var lifeTimeCookie = 0;
 
-    if (now > date) {
-      lifeTimeCookie = now - date;
+    if (dateNow > dateBirth) {
+      lifeTimeCookie = dateNow - dateBirth;
     } else {
-      lifeTimeCookie = now - date.setFullYear(now.getFullYear() - 1);
+      lifeTimeCookie = dateNow - dateBirth.setFullYear(dateNow.getFullYear() - 1);
     }
 
     return lifeTimeCookie;
@@ -415,6 +424,7 @@ var browserCookies = require('browser-cookies');
     // убрать предыдущий примененный класс. Для этого нужно или запоминать его
     // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
+    lastFilter = document.querySelector('.upload-filter-controls input:checked').value;
   };
 
   cleanupResizer();
