@@ -1,5 +1,7 @@
 'use strict';
 
-require('./resizer');
-require('./upload');
-require('./pictures.js');
+window.onload = function() {
+  require('./resizer');
+  require('./upload');
+  require('./pictures.js');
+};
