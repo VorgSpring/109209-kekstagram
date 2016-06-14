@@ -1,6 +1,20 @@
 ﻿'use strict';
 
 /**
+ * Добавляет скрипт с JSON в разметку и выполняет callback функцию в этом JSON
+ * @param {string} data
+ * @param {function} callBackFunction
+ */
+function toPerformJSON(adress, callBackFunction) {
+  window.__picturesLoadCallback = function(data) {
+    callBackFunction(data);
+  };
+  var script = document.createElement('script');
+  script.src = adress;
+  document.body.appendChild(script);
+}
+
+/**
  * Блок с фильтрами
  * @type {HTMLElement}
  */
@@ -42,6 +56,7 @@ if ('content' in templateElement) {
 }
 
 /**
+ * Добавляет в container объект data на основе шаблона templateElement
  * @param {Object} data
  * @param {HTMLElement} container
  * @return {HTMLElement}
@@ -76,9 +91,13 @@ var getPictureElement = function(data, container) {
   container.appendChild(element);
   return element;
 };
-// Перебераем список полученный с сервера
-window.pictures.forEach(function(picture) {
-  getPictureElement(picture, picturesContainer);
+
+// Добавляем скрипт с JSON
+toPerformJSON('https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', function(pictures) {
+  pictures.forEach(function(picture) {
+    // Перебераем список полученный с сервера
+    getPictureElement(picture, picturesContainer);
+  });
 });
 
 // Отображаем блок с фильтрами

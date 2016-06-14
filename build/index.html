@@ -90,19 +90,9 @@
 
 <script>
     var pictures = [];
-    var __picturesLoadCallback = function () {
-        console.log(arguments[0]);
-        pictures = arguments[0];
+    var __picturesLoadCallback = function (data) {
+        pictures = data;
     };
-
-    function toPerformJSON(adress, callBackFunction) {
-        callBackFunction();
-        var script = document.createElement('script');
-        script.src = adress;
-        document.body.insertBefore(script, null);
-    }
-
-    toPerformJSON('https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', __picturesLoadCallback);
 </script>
 <script src="js/main.js"></script>
 </body>
