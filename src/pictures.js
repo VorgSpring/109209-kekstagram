@@ -8,25 +8,20 @@
 function toPerformJSON(adress, callBackFunction) {
   var script = document.createElement('script');
   script.src = adress;
-
-  if (script.readyState == 'loaded' || script.readyState == 'completed') {
-    callBackFunction();
-  } else {
-    setTimeout(function () {
-      toPerformJSON(script, callBackFunction);
-    }, 100);
-  }
-
   document.body.appendChild(script);
+
+  script.onload = function() {
+    callBackFunction();
+  };
 }
 
-var __picturesLoadCallback = function () {
+window.__picturesLoadCallback = function() {
   console.log(arguments[0]); // тут объект, который вернулся из запроса
   var pictures = arguments[0] || [];
-  pictures.forEach(function (picture) {
+  pictures.forEach(function(picture) {
     // Перебераем список полученный с сервера
     getPictureElement(picture, picturesContainer);
-  })
+  });
 };
 /**
  * Блок с фильтрами
@@ -70,6 +65,14 @@ if ('content' in templateElement) {
 }
 
 /**
+ * Действие при неудачной загрузке изображения
+ */
+var toFailedLoadImage = function(uploadImage, contantImage) {
+  uploadImage.src = '';
+  contantImage.classList.add('picture-load-failure');
+};
+
+/**
  * Добавляет в container объект data на основе шаблона templateElement
  * @param {Object} data
  * @param {HTMLElement} container
@@ -84,20 +87,19 @@ var getPictureElement = function(data, container) {
   // Добавляем фото
   var contantImage = element.querySelector('img');
   var uploadImage = new Image(182, 182);
-  var imageLoadTimeout = setTimeout(function() {
-    uploadImage.src = '';
-    contantImage.classList.add('picture-load-failure');
-  }, IMAGE_LOAD_TIMEOUT);
+  var imageLoadTimeout = setTimeout(toFailedLoadImage(uploadImage, contantImage), IMAGE_LOAD_TIMEOUT);
 
   // Обработчик загрузки
   uploadImage.onload = function() {
+    uploadImage.onerror = null;
     clearTimeout(imageLoadTimeout);
     contantImage.src = data.url;
   };
 
   // Обработчик ошибки
   uploadImage.onerror = function() {
-    contantImage.classList.add('picture-load-failure');
+    uploadImage.onload = null;
+    toFailedLoadImage(uploadImage, contantImage);
   };
 
   uploadImage.src = data.url;
@@ -107,7 +109,7 @@ var getPictureElement = function(data, container) {
 };
 
 // Добавляем скрипт с JSON
-toPerformJSON('https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', __picturesLoadCallback);
+toPerformJSON('https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', window.__picturesLoadCallback);
 
 // Отображаем блок с фильтрами
 filters.classList.remove('hidden');
