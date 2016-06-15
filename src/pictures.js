@@ -6,14 +6,28 @@
  * @param {function} callBackFunction
  */
 function toPerformJSON(adress, callBackFunction) {
-  window.__picturesLoadCallback = function(data) {
-    callBackFunction(data);
-  };
   var script = document.createElement('script');
   script.src = adress;
+
+  if (script.readyState == 'loaded' || script.readyState == 'completed') {
+    callBackFunction();
+  } else {
+    setTimeout(function () {
+      toPerformJSON(script, callBackFunction);
+    }, 100);
+  }
+
   document.body.appendChild(script);
 }
 
+var __picturesLoadCallback = function () {
+  console.log(arguments[0]); // тут объект, который вернулся из запроса
+  var pictures = arguments[0] || [];
+  pictures.forEach(function (picture) {
+    // Перебераем список полученный с сервера
+    getPictureElement(picture, picturesContainer);
+  })
+};
 /**
  * Блок с фильтрами
  * @type {HTMLElement}
@@ -93,12 +107,7 @@ var getPictureElement = function(data, container) {
 };
 
 // Добавляем скрипт с JSON
-toPerformJSON('https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', function(pictures) {
-  pictures.forEach(function(picture) {
-    // Перебераем список полученный с сервера
-    getPictureElement(picture, picturesContainer);
-  });
-});
+toPerformJSON('https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', __picturesLoadCallback);
 
 // Отображаем блок с фильтрами
 filters.classList.remove('hidden');
