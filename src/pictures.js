@@ -87,7 +87,9 @@ var getPictureElement = function(data, container) {
   // Добавляем фото
   var contantImage = element.querySelector('img');
   var uploadImage = new Image(182, 182);
-  var imageLoadTimeout = setTimeout(toFailedLoadImage(uploadImage, contantImage), IMAGE_LOAD_TIMEOUT);
+  var imageLoadTimeout = setTimeout(function() {
+    toFailedLoadImage(uploadImage, contantImage);
+  }, IMAGE_LOAD_TIMEOUT);
 
   // Обработчик загрузки
   uploadImage.onload = function() {
