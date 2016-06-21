@@ -8,8 +8,6 @@ var filters = document.querySelector('.filters');
 // Скрываем блок с фильтрами
 filters.classList.add('hidden');
 
-// Создаём для каждой записи массива pictures блок фотографии на основе шаблона #picture-template.
-
 /**
  * Блок с фотографиями
  * @type {HTMLElement}
@@ -22,13 +20,11 @@ var picturesContainer = document.querySelector('.pictures');
  */
 var IMAGE_LOAD_TIMEOUT = 10000;
 
-
 /**
  * URL файла JSON
- * @constant {string} 
+ * @constant {string}
  */
 var IMAGE_LOAD_URL = 'https://o0.github.io/assets/json/pictures.json';
-
 
 /**
  * Шаблон для блока с фотографиями
@@ -51,10 +47,20 @@ if ('content' in templateElement) {
 
 /**
  * Действие при неудачной загрузке изображения
+ * @param {HTMLElement} uploadImage
+ * @param {HTMLElement} contantImage
  */
 var toFailedLoadImage = function(uploadImage, contantImage) {
   uploadImage.src = '';
   contantImage.classList.add('picture-load-failure');
+};
+
+/**
+ * Действие при неудачной загрузке списка изображений
+ */
+var toFailedLoadXHR = function() {
+  picturesContainer.classList.remove('pictures-loading');
+  picturesContainer.classList.add('pictures-failure');
 };
 
 /**
@@ -100,13 +106,31 @@ var getPictureElement = function(data, container) {
  * @param {function(Array.<Object>)} callback
  */
 var getPictures = function (callback) {
+  picturesContainer.classList.add('pictures-loading');
   var xhr = new XMLHttpRequest();
+  var xhrLoadTimeout = setTimeout(function () {
+    toFailedLoadXHR();
+  }, IMAGE_LOAD_TIMEOUT);
 
-  /** @param {ProgressEvent} */
-  xhr.onload = function (evt) {
+  /**
+   * Обработчик загрузки
+   * @param {ProgressEvent} 
+   */
+  xhr.onload = function(evt) {
     var loadedData = JSON.parse(evt.target.response);
     callback(loadedData);
   };
+
+  // Обработчик пост загрузки
+  xhr.onloadend = function() {
+    clearTimeout(xhrLoadTimeout);
+   picturesContainer.classList.remove('pictures-loading');
+  }
+
+  // Обработчик ошибки
+  xhr.onerror = function() {
+    toFailedLoadXHR();
+  }
 
   xhr.open('GET', IMAGE_LOAD_URL);
   xhr.send();
