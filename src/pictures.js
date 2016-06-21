@@ -1,29 +1,6 @@
 ﻿'use strict';
 
 /**
- * Добавляет скрипт с JSON в разметку и выполняет callback функцию в этом JSON
- * @param {string} data
- * @param {function} callBackFunction
- */
-function toPerformJSON(adress, callBackFunction) {
-  var script = document.createElement('script');
-  script.src = adress;
-  document.body.appendChild(script);
-
-  script.onload = function() {
-    callBackFunction();
-  };
-}
-
-window.__picturesLoadCallback = function() {
-  console.log(arguments[0]); // тут объект, который вернулся из запроса
-  var pictures = arguments[0] || [];
-  pictures.forEach(function(picture) {
-    // Перебераем список полученный с сервера
-    getPictureElement(picture, picturesContainer);
-  });
-};
-/**
  * Блок с фильтрами
  * @type {HTMLElement}
  */
@@ -44,6 +21,14 @@ var picturesContainer = document.querySelector('.pictures');
  * @constant {number}
  */
 var IMAGE_LOAD_TIMEOUT = 10000;
+
+
+/**
+ * URL файла JSON
+ * @constant {string} 
+ */
+var IMAGE_LOAD_URL = 'https://o0.github.io/assets/json/pictures.json';
+
 
 /**
  * Шаблон для блока с фотографиями
@@ -110,8 +95,38 @@ var getPictureElement = function(data, container) {
   return element;
 };
 
-// Добавляем скрипт с JSON
-toPerformJSON('https://up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', window.__picturesLoadCallback);
+/** 
+ * Получает список изображений по XMLHttpRequest
+ * @param {function(Array.<Object>)} callback
+ */
+var getPictures = function (callback) {
+  var xhr = new XMLHttpRequest();
+
+  /** @param {ProgressEvent} */
+  xhr.onload = function (evt) {
+    var loadedData = JSON.parse(evt.target.response);
+    callback(loadedData);
+  };
+
+  xhr.open('GET', IMAGE_LOAD_URL);
+  xhr.send();
+};
+
+/**
+ * Фунция отображения изображений
+ * @param {Array.<Object>} pictures
+ */
+var renderPictures = function(pictures) {
+  pictures.forEach(function(picture) {
+    // Перебераем список полученный с сервера
+    getPictureElement(picture, picturesContainer);
+  });
+};
+
+getPictures(function (loadedImages) {
+  var pictures = loadedImages;
+  renderPictures(pictures);
+})
 
 // Отображаем блок с фильтрами
 filters.classList.remove('hidden');
