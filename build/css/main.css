@@ -53,6 +53,7 @@ body {
     color: #ffffff;
     cursor: default;
     opacity: .7;
+    text-decoration: none;
 }
 
 .filters-item--disabled::after {

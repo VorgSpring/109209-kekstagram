@@ -23,6 +23,12 @@ var picturesContainer = document.querySelector('.pictures');
 var IMAGE_LOAD_TIMEOUT = 10000;
 
 /**
+ * Четыре дня в миллисекундах
+ * @constant {number}
+ */ 
+var FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
+
+/**
  * URL файла JSON
  * @constant {string}
  */
@@ -69,14 +75,13 @@ var toFailedLoadXHR = function() {
  * Добавляет в container объект data на основе шаблона templateElement
  * @param {Object} data
  * @param {HTMLElement} container
- * @return {HTMLElement}
+ * @return {HTMLElement} element
  */
 var getPictureElement = function(data, container) {
   // Клонируем шаблонный элемент
   var element = elementToClone.cloneNode(true);
   // Заполняем элемент данными о комментариях, лайках
   element.querySelector('.picture-comments').textContent = data.comments;
-  element.querySelector('.picture-likes').textContent = data.likes;
   element.querySelector('.picture-likes').textContent = data.likes;
   // Добавляем фото
   var contantImage = element.querySelector('img');
@@ -120,7 +125,8 @@ var getPictures = function(callback) {
    * Обработчик загрузки
    * @param {ProgressEvent}
    */
-  xhr.onload = function(evt) {
+  xhr.onload = function (evt) {
+    xhr.onerror = null;
     var loadedData = JSON.parse(evt.target.response);
     callback(loadedData);
   };
@@ -132,7 +138,8 @@ var getPictures = function(callback) {
   };
 
   // Обработчик ошибки
-  xhr.onerror = function() {
+  xhr.onerror = function () {
+    xhr.onload = null;
     toFailedLoadXHR();
   };
 
@@ -158,13 +165,10 @@ var renderPictures = function(images) {
  * @return {Array.<Object>} imagesInFourDays
  */
 var getPictureInFourDays = function(images) {
-  // Четыре дня в миллисекундах
-  var fourDays = 4 * 24 * 60 * 60 * 1000;
-
   var now = new Date();
   var imagesInFourDays = images.filter(function(item) {
     var interval = now - Date.parse(item.date);
-    return interval <= fourDays;
+    return interval <= FOUR_DAYS;
   });
 
   return imagesInFourDays;
@@ -206,6 +210,27 @@ var setFilterEnabled = function(filter) {
   renderPictures(filteredImages);
 };
 
+
+/**
+ * Блокирует в интерфейсе кнопку фильтра
+ * @param {HTMLElement} item
+ */
+var setFilterDisabled = function(item) {
+  item.setAttribute('for', '');
+  item.classList.add('filters-item--disabled');
+}
+
+/**
+ * Выводит значение message в скобках в теге <sup/> на элементе item
+ * @param {HTMLElement} item
+ * @param {string} message
+ */
+var addFilterCounter = function(item, message) {
+  var messageContainer = document.createElement('sup');
+  item.appendChild(messageContainer);
+  messageContainer.innerHTML = ' (' + message + ')';
+}
+
 /**
  * Добавляет обработчик клика на элементы фильтра, считает сколько
  * элементов подходит под каждый из фильтр и если ни один из элементов
@@ -221,14 +246,10 @@ var setFiltrationEnabled = function() {
     var labelItem = document.querySelector('#' + filtersItem[i].id + '+label');
 
     // Полученное значение выводим в скобках в теге <sup/>
-    var lengthMessage = document.createElement('sup');
-    labelItem.appendChild(lengthMessage);
-    lengthMessage.innerHTML = ' (' + filtersArrayLength + ')';
+    addFilterCounter(labelItem, filtersArrayLength)
 
-    // Если список пуст блокируем кнопку
     if (filtersArrayLength === 0) {
-      labelItem.setAttribute('for', '');
-      labelItem.classList.add('filters-item--disabled');
+      setFilterDisabled(labelItem);
     }
 
     // Если фильтр выбран отрисовываем его
