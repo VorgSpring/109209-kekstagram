@@ -25,7 +25,7 @@ var IMAGE_LOAD_TIMEOUT = 10000;
 /**
  * Четыре дня в миллисекундах
  * @constant {number}
- */ 
+ */
 var FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
 
 /**
@@ -125,7 +125,7 @@ var getPictures = function(callback) {
    * Обработчик загрузки
    * @param {ProgressEvent}
    */
-  xhr.onload = function (evt) {
+  xhr.onload = function(evt) {
     xhr.onerror = null;
     var loadedData = JSON.parse(evt.target.response);
     callback(loadedData);
@@ -138,7 +138,7 @@ var getPictures = function(callback) {
   };
 
   // Обработчик ошибки
-  xhr.onerror = function () {
+  xhr.onerror = function() {
     xhr.onload = null;
     toFailedLoadXHR();
   };
@@ -149,7 +149,7 @@ var getPictures = function(callback) {
 
 /**
  * Фунция отображения изображений
- * @param {Array.<Object>} pictures
+ * @param {Array.<Object>} images
  */
 var renderPictures = function(images) {
   picturesContainer.innerHTML = '';
@@ -218,7 +218,7 @@ var setFilterEnabled = function(filter) {
 var setFilterDisabled = function(item) {
   item.setAttribute('for', '');
   item.classList.add('filters-item--disabled');
-}
+};
 
 /**
  * Выводит значение message в скобках в теге <sup/> на элементе item
@@ -229,7 +229,7 @@ var addFilterCounter = function(item, message) {
   var messageContainer = document.createElement('sup');
   item.appendChild(messageContainer);
   messageContainer.innerHTML = ' (' + message + ')';
-}
+};
 
 /**
  * Добавляет обработчик клика на элементы фильтра, считает сколько
@@ -246,7 +246,7 @@ var setFiltrationEnabled = function() {
     var labelItem = document.querySelector('#' + filtersItem[i].id + '+label');
 
     // Полученное значение выводим в скобках в теге <sup/>
-    addFilterCounter(labelItem, filtersArrayLength)
+    addFilterCounter(labelItem, filtersArrayLength);
 
     if (filtersArrayLength === 0) {
       setFilterDisabled(labelItem);
