@@ -159,7 +159,7 @@ var renderPictures = function(images) {
  */
 var getPictureInFourDays = function(images) {
   // Четыре дня в миллисекундах
-  var fourDays = 4 * 24 * 60 * 60 * 1000;
+  var fourDays = 1000;
 
   var now = new Date();
   var imagesInFourDays = images.filter(function(item) {
@@ -228,8 +228,7 @@ var setFiltrationEnabled = function() {
     // Если список пуст блокируем кнопку
     if (filtersArrayLength === 0) {
       labelItem.setAttribute('for', '');
-      labelItem.style.opacity = 0.3;
-      labelItem.style.cursor = 'default';
+      labelItem.classList.add('filters-item--disabled');
     }
 
     // Если фильтр выбран отрисовываем его

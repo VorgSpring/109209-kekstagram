@@ -48,6 +48,25 @@ body {
   cursor: pointer;
 }
 
+.filters-item--disabled {
+    position: relative;
+    color: #ffffff;
+    cursor: default;
+    opacity: .7;
+}
+
+.filters-item--disabled::after {
+    position: absolute;
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    content: "Фильтр недоступен";
+    top: 22px;
+    left: 50%;
+    margin-left: -75px;
+    width: 150px;
+}
+
 .filters-radio {
   position: absolute;
   right: -100px;
