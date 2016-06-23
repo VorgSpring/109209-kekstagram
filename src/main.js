@@ -3,3 +3,4 @@
 require('./resizer');
 require('./upload');
 require('./pictures.js');
+//require('./JavaScript.js');
