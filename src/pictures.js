@@ -8,7 +8,17 @@ var filters = document.querySelector('.filters');
 // Скрываем блок с фильтрами
 filters.classList.add('hidden');
 
+/**
+ * Массив с изображениями, которые полученны с сервера
+ * @type {Array}
+ */
 var pictures = [];
+
+/**
+ * Массив с отфильтрованными изображениями, которые полученны с сервера
+ * @type {Array}
+ */
+var filteredImages = [];
 
 /**
  * Блок с фотографиями
@@ -33,6 +43,24 @@ var FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
  * @constant {string}
  */
 var IMAGE_LOAD_URL = 'https://o0.github.io/assets/json/pictures.json';
+
+/**
+ * Колличество фотографий на странице
+ * @constant {number}
+ */
+var PAGE_SIZE = 12;
+
+/**
+ * Время через которое выполняется функция
+ * @constant {number}
+ */
+var THROTTLE_DELAY = 100;
+
+/**
+ * Начальный номер страницы
+ * @type {number}
+ */
+var pageNumber = 0;
 
 /**
  * Шаблон для блока с фотографиями
@@ -148,12 +176,86 @@ var getPictures = function(callback) {
 };
 
 /**
+ * Проверяет достигнут ли конец страницы
+ * @return {boolean}
+ */
+var isBottomReached = function() {
+  var scrollHeight = document.documentElement.scrollHeight;
+  var clientHeight = document.documentElement.clientHeight;
+  var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+  var height = scrollTop + clientHeight;
+  return height >= scrollHeight - 100;
+};
+
+/**
+ * Проверяет возможно ли перейти на следующую страницу
+ * @param {Array} images
+ * @param {number} page
+ * @param {number} pageSize
+ * @return {boolean}
+ */
+var isNextPageAvailable = function(images, page, pageSize) {
+  return page < Math.ceil(images.length / pageSize);
+};
+
+/**
+ * Оптимизирует callback, чтобы функция вызывалась не чаще, чем раз в time интервал времени
+ * @param {function} callback
+ * @param {number} time
+ * @return {function}
+ */
+function throttle(callback, time) {
+  var lock, execOnUnlock, args;
+  return function() {
+    args = arguments;
+    if (!lock) {
+      lock = true;
+      var scope = this;
+      setTimeout(function() {
+        lock = false;
+        if (execOnUnlock) {
+          args.callee.apply(scope, args);
+          execOnUnlock = false;
+        }
+      }, time);
+      return callback.apply(this, args);
+    } else {
+      execOnUnlock = true;
+    }
+  };
+}
+
+/**
+ * Оптимизированная функция отрисовки следующей страницы при прокрути scrollbar
+ */
+var optimizedScroll = throttle(function() {
+  if (isBottomReached() &&
+      isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
+    pageNumber++;
+    renderPictures(filteredImages, pageNumber, false);
+  }
+}, THROTTLE_DELAY);
+
+
+/**
  * Фунция отображения изображений
  * @param {Array.<Object>} images
  */
-var renderPictures = function(images) {
-  picturesContainer.innerHTML = '';
-  images.forEach(function(picture) {
+var renderPictures = function(images, page, replace) {
+  if (replace) {
+    picturesContainer.innerHTML = '';
+  }
+
+  var from = page * PAGE_SIZE;
+  var to = null;
+
+  if (page === 0) {
+    to = from + PAGE_SIZE;
+  } else {
+    to = from + PAGE_SIZE;
+  }
+
+  images.slice(from, to).forEach(function(picture) {
     // Перебераем список полученный с сервера
     getPictureElement(picture, picturesContainer);
   });
@@ -206,8 +308,9 @@ var getFilteredImages = function(images, filter) {
  * @param {string} filter
  */
 var setFilterEnabled = function(filter) {
-  var filteredImages = getFilteredImages(pictures, filter);
-  renderPictures(filteredImages);
+  filteredImages = getFilteredImages(pictures, filter);
+  pageNumber = 0;
+  renderPictures(filteredImages, 0, true);
 };
 
 
@@ -256,19 +359,20 @@ var setFiltrationEnabled = function() {
     if (filtersItem[i].checked === true) {
       setFilterEnabled(filtersItem[i].value);
     }
-
     // Обработчик клика
-    filtersItem[i].onclick = function() {
-      setFilterEnabled(this.value);
-    };
+    filters.addEventListener('click', function(event) {
+      if (event.target.classList.contains('filters-radio')) {
+        setFilterEnabled(event.target.value);
+      }
+    });
   }
 };
-
 
 // Отображаем блок с изображениеми
 getPictures(function(loadedImages) {
   pictures = loadedImages;
   setFiltrationEnabled();
+  window.addEventListener('scroll', optimizedScroll);
 });
 
 // Отображаем блок с фильтрами
