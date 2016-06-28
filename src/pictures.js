@@ -250,6 +250,7 @@ var renderPictures = function(images, page, replace) {
     getPictureElement(picture, picturesContainer);
   });
 
+  // Если страница не заполненна
   if (document.documentElement.scrollHeight === document.documentElement.clientHeight) {
     pageNumber++;
     renderPictures(images, pageNumber, false);
