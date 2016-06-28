@@ -179,14 +179,11 @@ var getPictures = function(callback) {
  * Проверяет достигнут ли конец страницы
  * @return {boolean}
  */
-var isBottomReached = function () {
+var isBottomReached = function() {
   // Задел до конца страницы
   var GAP = 50;
-  var scrollHeight = document.documentElement.scrollHeight;
-  var clientHeight = document.documentElement.clientHeight;
-  var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-  var height = scrollTop + clientHeight;
-  return height >= scrollHeight - GAP;
+  var picturesContainerPosition = picturesContainer.getBoundingClientRect();
+  return picturesContainerPosition.bottom - (window.innerHeight + GAP) <= 0;
 };
 
 /**
@@ -233,7 +230,6 @@ var optimizedScroll = throttle(function() {
     renderPictures(filteredImages, pageNumber, false);
   }
 }, THROTTLE_DELAY);
-
 
 /**
  * Фунция отображения изображений
@@ -314,7 +310,6 @@ var setFilterEnabled = function(filter) {
   pageNumber = 0;
   renderPictures(filteredImages, pageNumber, true);
 };
-
 
 /**
  * Блокирует в интерфейсе кнопку фильтра
