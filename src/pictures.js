@@ -48,7 +48,7 @@ var IMAGE_LOAD_URL = 'https://o0.github.io/assets/json/pictures.json';
  * Колличество фотографий на странице
  * @constant {number}
  */
-var PAGE_SIZE = 12;
+var PAGE_SIZE = 5;
 
 /**
  * Время через которое выполняется функция
@@ -205,23 +205,19 @@ var isNextPageAvailable = function(images, page, pageSize) {
  * @return {function}
  */
 function throttle(callback, time) {
-  var lock, execOnUnlock, args;
+  var state = null;
+  var COOLDOWN = 1;
+
   return function() {
-    args = arguments;
-    if (!lock) {
-      lock = true;
-      var scope = this;
-      setTimeout(function() {
-        lock = false;
-        if (execOnUnlock) {
-          args.callee.apply(scope, args);
-          execOnUnlock = false;
-        }
-      }, time);
-      return callback.apply(this, args);
-    } else {
-      execOnUnlock = true;
+    if (state) {
+      return;
     }
+
+    callback.apply(this, arguments);
+    state = COOLDOWN;
+    setTimeout(function() {
+      state = null;
+    }, time);
   };
 }
 
@@ -247,18 +243,17 @@ var renderPictures = function(images, page, replace) {
   }
 
   var from = page * PAGE_SIZE;
-  var to = null;
-
-  if (page === 0) {
-    to = from + PAGE_SIZE;
-  } else {
-    to = from + PAGE_SIZE;
-  }
+  var to = from + PAGE_SIZE;
 
   images.slice(from, to).forEach(function(picture) {
     // Перебераем список полученный с сервера
     getPictureElement(picture, picturesContainer);
   });
+
+  if (document.documentElement.scrollHeight === document.documentElement.clientHeight) {
+    pageNumber++;
+    renderPictures(images, pageNumber, false);
+  }
 };
 
 /**
@@ -310,7 +305,7 @@ var getFilteredImages = function(images, filter) {
 var setFilterEnabled = function(filter) {
   filteredImages = getFilteredImages(pictures, filter);
   pageNumber = 0;
-  renderPictures(filteredImages, 0, true);
+  renderPictures(filteredImages, pageNumber, true);
 };
 
 
