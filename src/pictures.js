@@ -179,12 +179,14 @@ var getPictures = function(callback) {
  * Проверяет достигнут ли конец страницы
  * @return {boolean}
  */
-var isBottomReached = function() {
+var isBottomReached = function () {
+  // Задел до конца страницы
+  var GAP = 50;
   var scrollHeight = document.documentElement.scrollHeight;
   var clientHeight = document.documentElement.clientHeight;
   var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
   var height = scrollTop + clientHeight;
-  return height >= scrollHeight - 100;
+  return height >= scrollHeight - GAP;
 };
 
 /**
@@ -248,11 +250,15 @@ var renderPictures = function(images, page, replace) {
   images.slice(from, to).forEach(function(picture) {
     // Перебераем список полученный с сервера
     getPictureElement(picture, picturesContainer);
+    console.log('изображение');
   });
 
   // Если страница не заполненна
-  if (document.documentElement.scrollHeight === document.documentElement.clientHeight) {
+  if (isBottomReached() &&
+      isNextPageAvailable(images, pageNumber, PAGE_SIZE)) {
+    console.log('страница не заполненна');
     pageNumber++;
+    console.log(pageNumber);
     renderPictures(images, pageNumber, false);
   }
 };
