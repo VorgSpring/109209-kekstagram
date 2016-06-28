@@ -18,7 +18,7 @@ var pictures = [];
  * Массив с отфильтрованными изображениями, которые полученны с сервера
  * @type {Array}
  */
-var filteredImages = [];
+var filterImages = [];
 
 /**
  * Блок с фотографиями
@@ -86,7 +86,7 @@ if ('content' in templateElement) {
  * @param {HTMLElement} uploadImage
  * @param {HTMLElement} contantImage
  */
-var toFailedLoadImage = function(uploadImage, contantImage) {
+var toFailedLoadImage = function (uploadImage, contantImage) {
   uploadImage.src = '';
   contantImage.classList.add('picture-load-failure');
 };
@@ -94,7 +94,7 @@ var toFailedLoadImage = function(uploadImage, contantImage) {
 /**
  * Действие при неудачной загрузке списка изображений
  */
-var toFailedLoadXHR = function() {
+var toFailedLoadXHR = function () {
   picturesContainer.classList.remove('pictures-loading');
   picturesContainer.classList.add('pictures-failure');
 };
@@ -105,7 +105,7 @@ var toFailedLoadXHR = function() {
  * @param {HTMLElement} container
  * @return {HTMLElement} element
  */
-var getPictureElement = function(data, container) {
+var getPictureElement = function (data, container) {
   // Клонируем шаблонный элемент
   var element = elementToClone.cloneNode(true);
   // Заполняем элемент данными о комментариях, лайках
@@ -114,19 +114,19 @@ var getPictureElement = function(data, container) {
   // Добавляем фото
   var contantImage = element.querySelector('img');
   var uploadImage = new Image(182, 182);
-  var imageLoadTimeout = setTimeout(function() {
+  var imageLoadTimeout = setTimeout(function () {
     toFailedLoadImage(uploadImage, contantImage);
   }, IMAGE_LOAD_TIMEOUT);
 
   // Обработчик загрузки
-  uploadImage.onload = function() {
+  uploadImage.onload = function () {
     uploadImage.onerror = null;
     clearTimeout(imageLoadTimeout);
     contantImage.src = data.url;
   };
 
   // Обработчик ошибки
-  uploadImage.onerror = function() {
+  uploadImage.onerror = function () {
     uploadImage.onload = null;
     toFailedLoadImage(uploadImage, contantImage);
   };
@@ -142,10 +142,10 @@ var getPictureElement = function(data, container) {
  * Получает список изображений по XMLHttpRequest
  * @param {function(Array.<Object>)} callback
  */
-var getPictures = function(callback) {
+var getPictures = function (callback) {
   picturesContainer.classList.add('pictures-loading');
   var xhr = new XMLHttpRequest();
-  var xhrLoadTimeout = setTimeout(function() {
+  var xhrLoadTimeout = setTimeout(function () {
     toFailedLoadXHR();
   }, IMAGE_LOAD_TIMEOUT);
 
@@ -153,20 +153,20 @@ var getPictures = function(callback) {
    * Обработчик загрузки
    * @param {ProgressEvent}
    */
-  xhr.onload = function(evt) {
+  xhr.onload = function (evt) {
     xhr.onerror = null;
     var loadedData = JSON.parse(evt.target.response);
     callback(loadedData);
   };
 
   // Обработчик пост загрузки
-  xhr.onloadend = function() {
+  xhr.onloadend = function () {
     clearTimeout(xhrLoadTimeout);
     picturesContainer.classList.remove('pictures-loading');
   };
 
   // Обработчик ошибки
-  xhr.onerror = function() {
+  xhr.onerror = function () {
     xhr.onload = null;
     toFailedLoadXHR();
   };
@@ -179,7 +179,7 @@ var getPictures = function(callback) {
  * Проверяет достигнут ли конец страницы
  * @return {boolean}
  */
-var isBottomReached = function() {
+var isBottomReached = function () {
   // Задел до конца страницы
   var GAP = 50;
   var picturesContainerPosition = picturesContainer.getBoundingClientRect();
@@ -193,7 +193,7 @@ var isBottomReached = function() {
  * @param {number} pageSize
  * @return {boolean}
  */
-var isNextPageAvailable = function(images, page, pageSize) {
+var isNextPageAvailable = function (images, page, pageSize) {
   return page < Math.ceil(images.length / pageSize);
 };
 
@@ -207,14 +207,14 @@ function throttle(callback, time) {
   var state = null;
   var COOLDOWN = 1;
 
-  return function() {
+  return function () {
     if (state) {
       return;
     }
 
     callback.apply(this, arguments);
     state = COOLDOWN;
-    setTimeout(function() {
+    setTimeout(function () {
       state = null;
     }, time);
   };
@@ -223,11 +223,11 @@ function throttle(callback, time) {
 /**
  * Оптимизированная функция отрисовки следующей страницы при прокрути scrollbar
  */
-var optimizedScroll = throttle(function() {
+var optimizedScroll = throttle(function () {
   if (isBottomReached() &&
       isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
     pageNumber++;
-    renderPictures(filteredImages, pageNumber, false);
+    renderPictures(filterImages, pageNumber, false);
   }
 }, THROTTLE_DELAY);
 
@@ -235,7 +235,7 @@ var optimizedScroll = throttle(function() {
  * Фунция отображения изображений
  * @param {Array.<Object>} images
  */
-var renderPictures = function(images, page, replace) {
+var renderPictures = function (images, page, replace) {
   if (replace) {
     picturesContainer.innerHTML = '';
   }
@@ -243,16 +243,14 @@ var renderPictures = function(images, page, replace) {
   var from = page * PAGE_SIZE;
   var to = from + PAGE_SIZE;
 
-  images.slice(from, to).forEach(function(picture) {
+  images.slice(from, to).forEach(function (picture) {
     // Перебераем список полученный с сервера
     getPictureElement(picture, picturesContainer);
-    console.log('изображение');
   });
 
   // Если страница не заполненна
   if (isBottomReached() &&
       isNextPageAvailable(images, pageNumber, PAGE_SIZE)) {
-    console.log('страница не заполненна');
     pageNumber++;
     console.log(pageNumber);
     renderPictures(images, pageNumber, false);
@@ -264,9 +262,9 @@ var renderPictures = function(images, page, replace) {
  * @param {Array.<Object>} images
  * @return {Array.<Object>} imagesInFourDays
  */
-var getPictureInFourDays = function(images) {
+var getPictureInFourDays = function (images) {
   var now = new Date();
-  var imagesInFourDays = images.filter(function(item) {
+  var imagesInFourDays = images.filter(function (item) {
     var interval = now - Date.parse(item.date);
     return interval <= FOUR_DAYS;
   });
@@ -275,47 +273,49 @@ var getPictureInFourDays = function(images) {
 };
 
 /**
- * Сортирует изображения по выбранному фильтру
+ * Хранит отфильтрованные списки изображений
+ */
+var filteredImages = {
+  'popular': [],
+  'new': [],
+  'discussed': []
+}
+
+/**
+ * Сортирует изображения по выбранному фильтру и заносит их в объект filteredImages
  * @param {Array.<Object>} images
  * @param {string} filter
  * @return {Array.<Object>} imagesToFilter
  */
-var getFilteredImages = function(images, filter) {
+var getFilteredImages = function (images) {
   var imagesToFilter = images.slice(0);
 
-  switch (filter) {
-    case 'popular':
-      break;
-    case 'new':
-      imagesToFilter = getPictureInFourDays(imagesToFilter);
-      imagesToFilter.sort(function(a, b) {
-        return Date.parse(b.date) - Date.parse(a.date);
-      });
-      break;
-    case 'discussed':
-      imagesToFilter.sort(function(a, b) {
-        return b.comments - a.comments;
-      });
-      break;
-  }
-  return imagesToFilter;
+  filteredImages.popular = images.slice(0);
+
+  filteredImages.new = getPictureInFourDays(imagesToFilter).sort(function (a, b) {
+    return Date.parse(b.date) - Date.parse(a.date);
+  });
+
+  filteredImages.discussed = imagesToFilter.sort(function (a, b) {
+    return b.comments - a.comments;
+  });
 };
 
 /**
  * Отображает блок с отфильтрованными изображениеми
  * @param {string} filter
  */
-var setFilterEnabled = function(filter) {
-  filteredImages = getFilteredImages(pictures, filter);
+var renderImagesByFilter = function (filter) {
+  filterImages = filteredImages[filter];
   pageNumber = 0;
-  renderPictures(filteredImages, pageNumber, true);
+  renderPictures(filterImages, pageNumber, true);
 };
 
 /**
  * Блокирует в интерфейсе кнопку фильтра
  * @param {HTMLElement} item
  */
-var setFilterDisabled = function(item) {
+var setFilterDisabled = function (item) {
   item.setAttribute('for', '');
   item.classList.add('filters-item--disabled');
 };
@@ -325,7 +325,7 @@ var setFilterDisabled = function(item) {
  * @param {HTMLElement} item
  * @param {string} message
  */
-var addFilterCounter = function(item, message) {
+var addFilterCounter = function (item, message) {
   var messageContainer = document.createElement('sup');
   item.appendChild(messageContainer);
   messageContainer.innerHTML = ' (' + message + ')';
@@ -337,12 +337,12 @@ var addFilterCounter = function(item, message) {
  * не проходит по какому-либо из фильтров, блокирует в интерфейсе
  * кнопку соответствующего фильтра
  */
-var setFiltrationEnabled = function() {
+var setFiltrationEnabled = function () {
   // Находим все радио кнопки
   var filtersItem = document.querySelectorAll('.filters-radio');
   for (var i = 0; i < filtersItem.length; i++) {
     // Посчитываем, сколько элементов подходит под каждый из фильтров
-    var filtersArrayLength = getFilteredImages(pictures, filtersItem[i].value).length;
+    var filtersArrayLength = filteredImages[filtersItem[i].value].length;
     var labelItem = document.querySelector('#' + filtersItem[i].id + '+label');
 
     // Полученное значение выводим в скобках в теге <sup/>
@@ -354,20 +354,21 @@ var setFiltrationEnabled = function() {
 
     // Если фильтр выбран отрисовываем его
     if (filtersItem[i].checked === true) {
-      setFilterEnabled(filtersItem[i].value);
+      renderImagesByFilter(filtersItem[i].value);
     }
-    // Обработчик клика
-    filters.addEventListener('click', function(event) {
-      if (event.target.classList.contains('filters-radio')) {
-        setFilterEnabled(event.target.value);
-      }
-    });
   }
+  // Обработчик клика
+  filters.addEventListener('click', function (event) {
+    if (event.target.classList.contains('filters-radio')) {
+      renderImagesByFilter(event.target.value);
+    }
+  });
 };
 
 // Отображаем блок с изображениеми
-getPictures(function(loadedImages) {
+getPictures(function (loadedImages) {
   pictures = loadedImages;
+  getFilteredImages(pictures);
   setFiltrationEnabled();
   window.addEventListener('scroll', optimizedScroll);
 });
