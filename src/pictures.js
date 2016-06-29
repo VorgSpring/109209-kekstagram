@@ -8,7 +8,17 @@ var filters = document.querySelector('.filters');
 // Скрываем блок с фильтрами
 filters.classList.add('hidden');
 
+/**
+ * Массив с изображениями, которые полученны с сервера
+ * @type {Array}
+ */
 var pictures = [];
+
+/**
+ * Массив с отфильтрованными изображениями, которые полученны с сервера
+ * @type {Array}
+ */
+var filterImages = [];
 
 /**
  * Блок с фотографиями
@@ -33,6 +43,24 @@ var FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
  * @constant {string}
  */
 var IMAGE_LOAD_URL = 'https://o0.github.io/assets/json/pictures.json';
+
+/**
+ * Колличество фотографий на странице
+ * @constant {number}
+ */
+var PAGE_SIZE = 5;
+
+/**
+ * Время через которое выполняется функция
+ * @constant {number}
+ */
+var THROTTLE_DELAY = 100;
+
+/**
+ * Начальный номер страницы
+ * @type {number}
+ */
+var pageNumber = 0;
 
 /**
  * Шаблон для блока с фотографиями
@@ -148,15 +176,85 @@ var getPictures = function(callback) {
 };
 
 /**
+ * Проверяет достигнут ли конец страницы
+ * @return {boolean}
+ */
+var isBottomReached = function() {
+  // Задел до конца страницы
+  var GAP = 50;
+  var picturesContainerPosition = picturesContainer.getBoundingClientRect();
+  return picturesContainerPosition.bottom - (window.innerHeight + GAP) <= 0;
+};
+
+/**
+ * Проверяет возможно ли перейти на следующую страницу
+ * @param {Array} images
+ * @param {number} page
+ * @param {number} pageSize
+ * @return {boolean}
+ */
+var isNextPageAvailable = function(images, page, pageSize) {
+  return page < Math.ceil(images.length / pageSize);
+};
+
+/**
+ * Оптимизирует callback, чтобы функция вызывалась не чаще, чем раз в time интервал времени
+ * @param {function} callback
+ * @param {number} time
+ * @return {function}
+ */
+function throttle(callback, time) {
+  var state = null;
+  var COOLDOWN = 1;
+
+  return function() {
+    if (state) {
+      return;
+    }
+
+    callback.apply(this, arguments);
+    state = COOLDOWN;
+    setTimeout(function() {
+      state = null;
+    }, time);
+  };
+}
+
+/**
+ * Оптимизированная функция отрисовки следующей страницы при прокрути scrollbar
+ */
+var optimizedScroll = throttle(function() {
+  if (isBottomReached() &&
+      isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
+    pageNumber++;
+    renderPictures(filterImages, pageNumber, false);
+  }
+}, THROTTLE_DELAY);
+
+/**
  * Фунция отображения изображений
  * @param {Array.<Object>} images
  */
-var renderPictures = function(images) {
-  picturesContainer.innerHTML = '';
-  images.forEach(function(picture) {
+var renderPictures = function(images, page, replace) {
+  if (replace) {
+    picturesContainer.innerHTML = '';
+  }
+
+  var from = page * PAGE_SIZE;
+  var to = from + PAGE_SIZE;
+
+  images.slice(from, to).forEach(function(picture) {
     // Перебераем список полученный с сервера
     getPictureElement(picture, picturesContainer);
   });
+
+  // Если страница не заполненна
+  if (isBottomReached() &&
+      isNextPageAvailable(images, pageNumber, PAGE_SIZE)) {
+    pageNumber++;
+    console.log(pageNumber);
+    renderPictures(images, pageNumber, false);
+  }
 };
 
 /**
@@ -175,41 +273,43 @@ var getPictureInFourDays = function(images) {
 };
 
 /**
- * Сортирует изображения по выбранному фильтру
+ * Хранит отфильтрованные списки изображений
+ */
+var filteredImages = {
+  'popular': [],
+  'new': [],
+  'discussed': []
+};
+
+/**
+ * Сортирует изображения по выбранному фильтру и заносит их в объект filteredImages
  * @param {Array.<Object>} images
  * @param {string} filter
  * @return {Array.<Object>} imagesToFilter
  */
-var getFilteredImages = function(images, filter) {
+var getFilteredImages = function(images) {
   var imagesToFilter = images.slice(0);
 
-  switch (filter) {
-    case 'popular':
-      break;
-    case 'new':
-      imagesToFilter = getPictureInFourDays(imagesToFilter);
-      imagesToFilter.sort(function(a, b) {
-        return Date.parse(b.date) - Date.parse(a.date);
-      });
-      break;
-    case 'discussed':
-      imagesToFilter.sort(function(a, b) {
-        return b.comments - a.comments;
-      });
-      break;
-  }
-  return imagesToFilter;
+  filteredImages.popular = images.slice(0);
+
+  filteredImages.new = getPictureInFourDays(imagesToFilter).sort(function(a, b) {
+    return Date.parse(b.date) - Date.parse(a.date);
+  });
+
+  filteredImages.discussed = imagesToFilter.sort(function(a, b) {
+    return b.comments - a.comments;
+  });
 };
 
 /**
  * Отображает блок с отфильтрованными изображениеми
  * @param {string} filter
  */
-var setFilterEnabled = function(filter) {
-  var filteredImages = getFilteredImages(pictures, filter);
-  renderPictures(filteredImages);
+var renderImagesByFilter = function(filter) {
+  filterImages = filteredImages[filter];
+  pageNumber = 0;
+  renderPictures(filterImages, pageNumber, true);
 };
-
 
 /**
  * Блокирует в интерфейсе кнопку фильтра
@@ -242,7 +342,7 @@ var setFiltrationEnabled = function() {
   var filtersItem = document.querySelectorAll('.filters-radio');
   for (var i = 0; i < filtersItem.length; i++) {
     // Посчитываем, сколько элементов подходит под каждый из фильтров
-    var filtersArrayLength = getFilteredImages(pictures, filtersItem[i].value).length;
+    var filtersArrayLength = filteredImages[filtersItem[i].value].length;
     var labelItem = document.querySelector('#' + filtersItem[i].id + '+label');
 
     // Полученное значение выводим в скобках в теге <sup/>
@@ -254,21 +354,23 @@ var setFiltrationEnabled = function() {
 
     // Если фильтр выбран отрисовываем его
     if (filtersItem[i].checked === true) {
-      setFilterEnabled(filtersItem[i].value);
+      renderImagesByFilter(filtersItem[i].value);
     }
-
-    // Обработчик клика
-    filtersItem[i].onclick = function() {
-      setFilterEnabled(this.value);
-    };
   }
+  // Обработчик клика
+  filters.addEventListener('click', function(event) {
+    if (event.target.classList.contains('filters-radio')) {
+      renderImagesByFilter(event.target.value);
+    }
+  });
 };
-
 
 // Отображаем блок с изображениеми
 getPictures(function(loadedImages) {
   pictures = loadedImages;
+  getFilteredImages(pictures);
   setFiltrationEnabled();
+  window.addEventListener('scroll', optimizedScroll);
 });
 
 // Отображаем блок с фильтрами
