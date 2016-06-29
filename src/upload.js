@@ -128,11 +128,7 @@ var browserCookies = require('browser-cookies');
 
     // Установка максимальных значений
     // Максимальное значение для поля «сторона» это меньшая сторона фотографии
-    if (currentResizer._image.naturalWidth < currentResizer._image.naturalHeight) {
-      fieldSide.max = currentResizer._image.naturalWidth;
-    } else {
-      fieldSide.max = currentResizer._image.naturalHeight;
-    }
+    fieldSide.max = Math.min(currentResizer._image.naturalWidth, currentResizer._image.naturalHeight);
 
     // Установка максимальных значений для полей «сверху» и «слева»
     fieldOnLeft.max = currentResizer._image.naturalWidth - sizeSide;
@@ -433,19 +429,14 @@ var browserCookies = require('browser-cookies');
     browserCookies.set(cookieNameFilter, lastFilter, { expires: Date.now() + getTimeLifeCookie() });
   });
 
-  var setValueInInput = function(x, y, side) {
-    fieldOnLeft.value = x;
-    fieldFromTop.value = y;
-    fieldSide.value = side;
-  };
-
+  /**
+   * Обработчик изменения размера
+   */
   window.addEventListener('resizerchange', function() {
     var offsetAndSideOfFrame = currentResizer.getConstraint();
-    var offsetOfFrameX = Math.floor(offsetAndSideOfFrame.x);
-    var offsetOfFrameY = Math.floor(offsetAndSideOfFrame.y);
-    var sideOfFrame = Math.floor(offsetAndSideOfFrame.side);
-
-    setValueInInput(offsetOfFrameX, offsetOfFrameY, sideOfFrame);
+    fieldOnLeft.value = Math.floor(offsetAndSideOfFrame.x);
+    fieldFromTop.value = Math.floor(offsetAndSideOfFrame.y);
+    fieldSide.value = Math.floor(offsetAndSideOfFrame.side);
   });
 
   cleanupResizer();
