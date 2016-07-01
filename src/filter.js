@@ -11,9 +11,9 @@ var FOUR_DAYS = 4 * 24 * 60 * 60 * 1000;
  * @param {Array.<Object>} list
  * @return {Array.<Object>} listInFourDays
  */
-var getListInFourDays = function (list) {
+var getListInFourDays = function(list) {
   var now = new Date();
-  var listInFourDays = list.filter(function (item) {
+  var listInFourDays = list.filter(function(item) {
     var interval = now - Date.parse(item.date);
     return interval <= FOUR_DAYS;
   });
@@ -26,7 +26,7 @@ var getListInFourDays = function (list) {
  * @param {Array.<Object>} list
  * @return {Array.<Object>} filteredList
  */
-var getFilteredList = function (list) {
+var getFilteredList = function(list) {
   //Хранит отфильтрованные списки изображений
   var filteredList = {
     'popular': [],
@@ -38,11 +38,11 @@ var getFilteredList = function (list) {
 
   filteredList.popular = list.slice(0);
 
-  filteredList.new = getListInFourDays(listToFilter).sort(function (a, b) {
+  filteredList.new = getListInFourDays(listToFilter).sort(function(a, b) {
     return Date.parse(b.date) - Date.parse(a.date);
   });
 
-  filteredList.discussed = listToFilter.sort(function (a, b) {
+  filteredList.discussed = listToFilter.sort(function(a, b) {
     return b.comments - a.comments;
   });
 

@@ -5,7 +5,7 @@ module.exports = {
    * Скрывает блок
    * @param {HTMLElement} block
    */
-  hideBlock: function (block) {
+  hideBlock: function(block) {
     block.classList.add('hidden');
   },
 
@@ -13,7 +13,7 @@ module.exports = {
    * Отображает блок
    * @param {HTMLElement} block
    */
-  showBlock: function (block) {
+  showBlock: function(block) {
     block.classList.remove('hidden');
   },
 
@@ -22,7 +22,7 @@ module.exports = {
    * @param {HTMLElement} item
    * @param {string} message
    */
-  addMessage: function (item, message) {
+  addMessage: function(item, message) {
     var messageContainer = document.createElement('sup');
     item.appendChild(messageContainer);
     messageContainer.innerHTML = ' (' + message + ')';
@@ -33,7 +33,7 @@ module.exports = {
    * @param {HTMLElement} label
    * @param {string} disabledButtonClass
    */
-  setRadioButtonDisabled: function (label, disabledButtonClass) {
+  setRadioButtonDisabled: function(label, disabledButtonClass) {
     label.setAttribute('for', '');
     label.classList.add(disabledButtonClass);
   },
@@ -44,17 +44,17 @@ module.exports = {
    * @param {number} time
    * @return {function}
    */
-  throttle: function (callback, time) {
+  throttle: function(callback, time) {
     var state = null;
     var COOLDOWN = 1;
 
-    return function () {
+    return function() {
       if (state) {
         return;
       }
       callback.apply(this, arguments);
       state = COOLDOWN;
-      setTimeout(function () {
+      setTimeout(function() {
         state = null;
       }, time);
     };
@@ -65,7 +65,7 @@ module.exports = {
    * @param {HTMLElement} container
    * @return {boolean}
    */
-  isBottomReached: function (container) {
+  isBottomReached: function(container) {
     // Задел до конца блока
     var GAP = 50;
     var containerPosition = container.getBoundingClientRect();
@@ -79,7 +79,7 @@ module.exports = {
    * @param {number} pageSize
    * @return {boolean}
    */
-  isNextPageAvailable: function (images, page, pageSize) {
+  isNextPageAvailable: function(images, page, pageSize) {
     return page < Math.ceil(images.length / pageSize);
   }
-}
+};

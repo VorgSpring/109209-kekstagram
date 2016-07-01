@@ -9,10 +9,10 @@ var LOAD_TIMEOUT = 10000;
  * Действие при неудачной загрузке списка
  * @param {HTMLElement} container
  */
-var toFailedLoadXHR = function (container) {
+var toFailedLoadXHR = function(container) {
   container.classList.remove('pictures-loading');
   container.classList.add('pictures-failure');
-}
+};
 
 /**
  * Получает список по XMLHttpRequest
@@ -20,10 +20,10 @@ var toFailedLoadXHR = function (container) {
  * @param {string} url
  * @param {function(Array.<Object>)} callback
  */
-var load = function (container, url, callback) {
+var load = function(container, url, callback) {
   container.classList.add('pictures-loading');
   var xhr = new XMLHttpRequest();
-  var xhrLoadTimeout = setTimeout(function () {
+  var xhrLoadTimeout = setTimeout(function() {
     toFailedLoadXHR(container);
   }, LOAD_TIMEOUT);
 
@@ -31,20 +31,20 @@ var load = function (container, url, callback) {
    * Обработчик загрузки
    * @param {ProgressEvent}
    */
-  xhr.onload = function (evt) {
+  xhr.onload = function(evt) {
     xhr.onerror = null;
     var loadedData = JSON.parse(evt.target.response);
     callback(loadedData);
   };
 
   // Обработчик пост загрузки
-  xhr.onloadend = function () {
+  xhr.onloadend = function() {
     clearTimeout(xhrLoadTimeout);
     container.classList.remove('pictures-loading');
   };
 
   // Обработчик ошибки
-  xhr.onerror = function () {
+  xhr.onerror = function() {
     xhr.onload = null;
     toFailedLoadXHR(container);
   };

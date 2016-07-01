@@ -67,7 +67,7 @@ var PAGE_SIZE = 5;
 /**
  * Оптимизированная функция отрисовки следующей страницы при прокрути scrollbar
  */
-var optimizedScroll = utilities.throttle(function () {
+var optimizedScroll = utilities.throttle(function() {
   if (utilities.isBottomReached(picturesContainer) &&
       utilities.isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
     pageNumber++;
@@ -80,7 +80,7 @@ var optimizedScroll = utilities.throttle(function () {
  * Отображает блок с отфильтрованными изображениеми
  * @param {string} filter
  */
-var renderImagesByFilter = function (filter) {
+var renderImagesByFilter = function(filter) {
   filterImages = filteredImages[filter];
   pageNumber = 0;
   renderPictures(filterImages, picturesContainer, pageNumber, PAGE_SIZE, true);
@@ -99,7 +99,7 @@ var renderImagesByFilter = function (filter) {
  * не проходит по какому-либо из фильтров, блокирует в интерфейсе
  * кнопку соответствующего фильтра
  */
-var setFiltrationEnabled = function () {
+var setFiltrationEnabled = function() {
   // Находим все радио кнопки
   var filtersItem = document.querySelectorAll('.filters-radio');
   for (var i = 0; i < filtersItem.length; i++) {
@@ -120,7 +120,7 @@ var setFiltrationEnabled = function () {
     }
   }
   // Обработчик клика
-  filters.addEventListener('click', function (event) {
+  filters.addEventListener('click', function(event) {
     if (event.target.classList.contains('filters-radio')) {
       renderImagesByFilter(event.target.value);
     }
@@ -128,7 +128,7 @@ var setFiltrationEnabled = function () {
 };
 
 // Отображаем блок с изображениеми
-load(picturesContainer, IMAGE_LOAD_URL, function (loadedImages) {
+load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   pictures = loadedImages;
   filteredImages = getFilteredImages(pictures);
   setFiltrationEnabled();

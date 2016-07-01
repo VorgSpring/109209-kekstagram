@@ -9,7 +9,7 @@ var getPictureElement = require('./getPictureElement.js');
  * @param {number} pageSize
  * @param {boolean} replace
  */
-var renderPictures = function (images, container, page, pageSize, replace) {
+var renderPictures = function(images, container, page, pageSize, replace) {
   if (replace) {
     container.innerHTML = '';
   }
@@ -17,7 +17,7 @@ var renderPictures = function (images, container, page, pageSize, replace) {
   var from = page * pageSize;
   var to = from + pageSize;
 
-  images.slice(from, to).forEach(function (picture) {
+  images.slice(from, to).forEach(function(picture) {
     // Перебераем список полученный с сервера
     getPictureElement(picture, container);
   });

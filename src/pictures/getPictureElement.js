@@ -29,10 +29,10 @@ if ('content' in templateElement) {
  * @param {HTMLElement} uploadImage
  * @param {HTMLElement} contantImage
  */
-var toFailedLoadImage = function (uploadImage, contantImage) {
+var toFailedLoadImage = function(uploadImage, contantImage) {
   uploadImage.src = '';
   contantImage.classList.add('picture-load-failure');
-}
+};
 
 /**
  * Добавляет в container объект data на основе шаблона templateElement
@@ -40,7 +40,7 @@ var toFailedLoadImage = function (uploadImage, contantImage) {
  * @param {HTMLElement} container
  * @return {HTMLElement} element
  */
-var getPictureElement = function (data, container) {
+var getPictureElement = function(data, container) {
   // Клонируем шаблонный элемент
   var element = elementToClone.cloneNode(true);
   // Заполняем элемент данными о комментариях, лайках
@@ -49,19 +49,19 @@ var getPictureElement = function (data, container) {
   // Добавляем фото
   var contantImage = element.querySelector('img');
   var uploadImage = new Image(182, 182);
-  var imageLoadTimeout = setTimeout(function () {
+  var imageLoadTimeout = setTimeout(function() {
     toFailedLoadImage(uploadImage, contantImage);
   }, LOAD_TIMEOUT);
 
   // Обработчик загрузки
-  uploadImage.onload = function () {
+  uploadImage.onload = function() {
     uploadImage.onerror = null;
     clearTimeout(imageLoadTimeout);
     contantImage.src = data.url;
   };
 
   // Обработчик ошибки
-  uploadImage.onerror = function () {
+  uploadImage.onerror = function() {
     uploadImage.onload = null;
     toFailedLoadImage(uploadImage, contantImage);
   };
