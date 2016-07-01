@@ -1,4 +1,4 @@
-'use strict';
+п»ї'use strict';
 
 require('./resizer');
 require('./upload');
@@ -6,70 +6,93 @@ require('./upload');
 var getFilteredImages = require('./filter');
 var renderPictures = require('./pictures/renderPictures');
 var load = require('./load');
-var utilities = require('./utilities.js');
+var utilities = require('./utilities');
 
 /**
- * Массив с изображениями, которые полученны с сервера
+ * РњР°СЃСЃРёРІ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё, РєРѕС‚РѕСЂС‹Рµ РїРѕР»СѓС‡РµРЅРЅС‹ СЃ СЃРµСЂРІРµСЂР°
  * @type {Array}
  */
 var pictures = [];
 
 /**
- * Массив с отфильтрованными изображениями, которые полученны с сервера
+ * РњР°СЃСЃРёРІ СЃ РѕС‚С„РёР»СЊС‚СЂРѕРІР°РЅРЅС‹РјРё РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё, РєРѕС‚РѕСЂС‹Рµ РїРѕР»СѓС‡РµРЅРЅС‹ СЃ СЃРµСЂРІРµСЂР°
  * @type {Array}
  */
 var filterImages = [];
 
 /**
- * Хранит отфильтрованные списки изображений
+ * РҐСЂР°РЅРёС‚ РѕС‚С„РёР»СЊС‚СЂРѕРІР°РЅРЅС‹Рµ СЃРїРёСЃРєРё РёР·РѕР±СЂР°Р¶РµРЅРёР№
  */
 var filteredImages = {};
 
 /**
- * Блок с фотографиями
+ * Р‘Р»РѕРє СЃ С„РѕС‚РѕРіСЂР°С„РёСЏРјРё
  * @type {HTMLElement}
  */
 var picturesContainer = document.querySelector('.pictures');
 
 /**
- * Блок с фильтрами
+ * Р‘Р»РѕРє СЃ С„РёР»СЊС‚СЂР°РјРё
  * @type {HTMLElement}
  */
 var filters = document.querySelector('.filters');
 
-// Скрываем блок с фильтрами
-utilities.hideBlock(filters);
+// РЎРєСЂС‹РІР°РµРј Р±Р»РѕРє СЃ С„РёР»СЊС‚СЂР°РјРё
+filters.classList.add('hidden');
 
 /**
- * URL файла JSON
+ * URL С„Р°Р№Р»Р° JSON
  * @constant {string}
  */
 var IMAGE_LOAD_URL = 'https://o0.github.io/assets/json/pictures.json';
 
 /**
- * Время через которое выполняется функция
+ * Р’СЂРµРјСЏ С‡РµСЂРµР· РєРѕС‚РѕСЂРѕРµ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ С„СѓРЅРєС†РёСЏ
  * @constant {number}
  */
 var THROTTLE_DELAY = 100;
 
 /**
- * Начальный номер страницы
+ * РќР°С‡Р°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹
  * @type {number}
  */
 var pageNumber = 0;
 
 /**
- * Колличество фотографий на странице
+ * РљРѕР»Р»РёС‡РµСЃС‚РІРѕ С„РѕС‚РѕРіСЂР°С„РёР№ РЅР° СЃС‚СЂР°РЅРёС†Рµ
  * @constant {number}
  */
 var PAGE_SIZE = 5;
 
 /**
- * Оптимизированная функция отрисовки следующей страницы при прокрути scrollbar
+ * РџСЂРѕРІРµСЂСЏРµС‚ РґРѕСЃС‚РёРіРЅСѓС‚ Р»Рё РєРѕРЅРµС† Р±Р»РѕРєР°
+ * @param {HTMLElement} container
+ * @return {boolean}
+ */
+var isBottomReached = function(container) {
+  // Р—Р°РґРµР» РґРѕ РєРѕРЅС†Р° Р±Р»РѕРєР°
+  var GAP = 50;
+  var containerPosition = container.getBoundingClientRect();
+  return containerPosition.bottom - (window.innerHeight + GAP) <= 0;
+};
+
+/**
+ * РџСЂРѕРІРµСЂСЏРµС‚ РІРѕР·РјРѕР¶РЅРѕ Р»Рё РїРµСЂРµР№С‚Рё РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ СЃС‚СЂР°РЅРёС†Сѓ
+ * @param {Array} images
+ * @param {number} page
+ * @param {number} pageSize
+ * @return {boolean}
+ */
+var isNextPageAvailable = function(images, page, pageSize) {
+  return page < Math.ceil(images.length / pageSize);
+};
+
+/**
+ * РћРїС‚РёРјРёР·РёСЂРѕРІР°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РѕС‚СЂРёСЃРѕРІРєРё СЃР»РµРґСѓСЋС‰РµР№ СЃС‚СЂР°РЅРёС†С‹ РїСЂРё РїСЂРѕРєСЂСѓС‚Рё scrollbar
  */
 var optimizedScroll = utilities.throttle(function() {
-  if (utilities.isBottomReached(picturesContainer) &&
-      utilities.isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
+  if (isBottomReached(picturesContainer) &&
+      isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
     pageNumber++;
     renderPictures(filterImages, picturesContainer, pageNumber, PAGE_SIZE, false);
   }
@@ -77,16 +100,16 @@ var optimizedScroll = utilities.throttle(function() {
 
 
 /**
- * Отображает блок с отфильтрованными изображениеми
+ * РћС‚РѕР±СЂР°Р¶Р°РµС‚ Р±Р»РѕРє СЃ РѕС‚С„РёР»СЊС‚СЂРѕРІР°РЅРЅС‹РјРё РёР·РѕР±СЂР°Р¶РµРЅРёРµРјРё
  * @param {string} filter
  */
 var renderImagesByFilter = function(filter) {
   filterImages = filteredImages[filter];
   pageNumber = 0;
   renderPictures(filterImages, picturesContainer, pageNumber, PAGE_SIZE, true);
-  // Если страница не заполненна
-  while (utilities.isBottomReached(picturesContainer) &&
-      utilities.isNextPageAvailable(filterImages, pageNumber, PAGE_SIZE)) {
+  // Р•СЃР»Рё СЃС‚СЂР°РЅРёС†Р° РЅРµ Р·Р°РїРѕР»РЅРµРЅРЅР°
+  while (isBottomReached(picturesContainer) &&
+      isNextPageAvailable(filterImages, pageNumber, PAGE_SIZE)) {
     pageNumber++;
     console.log(pageNumber);
     renderPictures(filterImages, picturesContainer, pageNumber, PAGE_SIZE, false);
@@ -94,32 +117,32 @@ var renderImagesByFilter = function(filter) {
 };
 
 /**
- * Добавляет обработчик клика на элементы фильтра, считает сколько
- * элементов подходит под каждый из фильтр и если ни один из элементов
- * не проходит по какому-либо из фильтров, блокирует в интерфейсе
- * кнопку соответствующего фильтра
+ * Р”РѕР±Р°РІР»СЏРµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє РєР»РёРєР° РЅР° СЌР»РµРјРµРЅС‚С‹ С„РёР»СЊС‚СЂР°, СЃС‡РёС‚Р°РµС‚ СЃРєРѕР»СЊРєРѕ
+ * СЌР»РµРјРµРЅС‚РѕРІ РїРѕРґС…РѕРґРёС‚ РїРѕРґ РєР°Р¶РґС‹Р№ РёР· С„РёР»СЊС‚СЂ Рё РµСЃР»Рё РЅРё РѕРґРёРЅ РёР· СЌР»РµРјРµРЅС‚РѕРІ
+ * РЅРµ РїСЂРѕС…РѕРґРёС‚ РїРѕ РєР°РєРѕРјСѓ-Р»РёР±Рѕ РёР· С„РёР»СЊС‚СЂРѕРІ, Р±Р»РѕРєРёСЂСѓРµС‚ РІ РёРЅС‚РµСЂС„РµР№СЃРµ
+ * РєРЅРѕРїРєСѓ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ С„РёР»СЊС‚СЂР°
  */
 var setFiltrationEnabled = function() {
-  // Находим все радио кнопки
+  // РќР°С…РѕРґРёРј РІСЃРµ СЂР°РґРёРѕ РєРЅРѕРїРєРё
   var filtersItem = document.querySelectorAll('.filters-radio');
   for (var i = 0; i < filtersItem.length; i++) {
-    // Посчитываем, сколько элементов подходит под каждый из фильтров
+    // РџРѕСЃС‡РёС‚С‹РІР°РµРј, СЃРєРѕР»СЊРєРѕ СЌР»РµРјРµРЅС‚РѕРІ РїРѕРґС…РѕРґРёС‚ РїРѕРґ РєР°Р¶РґС‹Р№ РёР· С„РёР»СЊС‚СЂРѕРІ
     var filtersArrayLength = filteredImages[filtersItem[i].value].length;
     var labelItem = document.querySelector('#' + filtersItem[i].id + '+label');
 
-    // Полученное значение выводим в скобках в теге <sup/>
+    // РџРѕР»СѓС‡РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РІС‹РІРѕРґРёРј РІ СЃРєРѕР±РєР°С… РІ С‚РµРіРµ <sup/>
     utilities.addMessage(labelItem, filtersArrayLength);
 
     if (filtersArrayLength === 0) {
       utilities.setRadioButtonDisabled(labelItem, 'filters-item--disabled');
     }
 
-    // Если фильтр выбран отрисовываем его
+    // Р•СЃР»Рё С„РёР»СЊС‚СЂ РІС‹Р±СЂР°РЅ РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј РµРіРѕ
     if (filtersItem[i].checked === true) {
       renderImagesByFilter(filtersItem[i].value);
     }
   }
-  // Обработчик клика
+  // РћР±СЂР°Р±РѕС‚С‡РёРє РєР»РёРєР°
   filters.addEventListener('click', function(event) {
     if (event.target.classList.contains('filters-radio')) {
       renderImagesByFilter(event.target.value);
@@ -127,7 +150,7 @@ var setFiltrationEnabled = function() {
   });
 };
 
-// Отображаем блок с изображениеми
+// РћС‚РѕР±СЂР°Р¶Р°РµРј Р±Р»РѕРє СЃ РёР·РѕР±СЂР°Р¶РµРЅРёРµРјРё
 load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   pictures = loadedImages;
   filteredImages = getFilteredImages(pictures);
@@ -135,5 +158,5 @@ load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   window.addEventListener('scroll', optimizedScroll);
 });
 
-// Отображаем блок с фильтрами
-utilities.showBlock(filters);
+// РћС‚РѕР±СЂР°Р¶Р°РµРј Р±Р»РѕРє СЃ С„РёР»СЊС‚СЂР°РјРё
+filters.classList.remove('hidden');

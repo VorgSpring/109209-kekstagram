@@ -2,22 +2,6 @@
 
 module.exports = {
   /**
-   * Скрывает блок
-   * @param {HTMLElement} block
-   */
-  hideBlock: function(block) {
-    block.classList.add('hidden');
-  },
-
-  /**
-   * Отображает блок
-   * @param {HTMLElement} block
-   */
-  showBlock: function(block) {
-    block.classList.remove('hidden');
-  },
-
-  /**
    * Выводит значение message в скобках в теге <sup/> на элементе item
    * @param {HTMLElement} item
    * @param {string} message
@@ -61,25 +45,20 @@ module.exports = {
   },
 
   /**
-   * Проверяет достигнут ли конец блока
-   * @param {HTMLElement} container
-   * @return {boolean}
+   * Получить веремя от 17 июня
+   * @return {Date}
    */
-  isBottomReached: function(container) {
-    // Задел до конца блока
-    var GAP = 50;
-    var containerPosition = container.getBoundingClientRect();
-    return containerPosition.bottom - (window.innerHeight + GAP) <= 0;
-  },
+  getBirthDayDifferent: function() {
+    var dateNow = new Date();
+    var dateBirth = new Date(dateNow.getFullYear(), 5, 17);
+    var birthDayDifferent = 0;
 
-  /**
-   * Проверяет возможно ли перейти на следующую страницу
-   * @param {Array} images
-   * @param {number} page
-   * @param {number} pageSize
-   * @return {boolean}
-   */
-  isNextPageAvailable: function(images, page, pageSize) {
-    return page < Math.ceil(images.length / pageSize);
+    if (dateNow > dateBirth) {
+      birthDayDifferent = dateNow - dateBirth;
+    } else {
+      birthDayDifferent = dateNow - dateBirth.setFullYear(dateNow.getFullYear() - 1);
+    }
+
+    return birthDayDifferent;
   }
 };
