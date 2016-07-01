@@ -207,6 +207,7 @@ var browserCookies = require('browser-cookies');
    */
   resizeForm.addEventListener('input', function(evt) {
     evt.preventDefault();
+    currentResizer.setConstraint(parseInt(fieldOnLeft.value, 10), parseInt(fieldFromTop.value, 10), parseInt(fieldSide.value, 10));
 
     if (resizeFormIsValid()) {
       forwardButton.style.opacity = 1;
@@ -217,8 +218,6 @@ var browserCookies = require('browser-cookies');
     }
 
     showError(fieldOnLeft, fieldFromTop, fieldSide);
-    currentResizer.setConstraint(parseInt(fieldOnLeft.value, 10), parseInt(fieldFromTop.value, 10), parseInt(fieldSide.value, 10));
-
   });
 
   /**
