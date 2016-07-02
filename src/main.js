@@ -7,6 +7,7 @@ var getFilteredImages = require('./filter');
 var renderPictures = require('./pictures/renderPictures');
 var load = require('./load');
 var utilities = require('./utilities');
+var gallery = require('./gallery.js');
 
 /**
  * Массив с изображениями, которые полученны с сервера
@@ -105,6 +106,7 @@ var optimizedScroll = utilities.throttle(function() {
  */
 var renderImagesByFilter = function(filter) {
   filterImages = filteredImages[filter];
+  gallery.seveGallery(filterImages);
   pageNumber = 0;
   renderPictures(filterImages, picturesContainer, pageNumber, PAGE_SIZE, true);
   // Если страница не заполненна
@@ -150,12 +152,28 @@ var setFiltrationEnabled = function() {
   });
 };
 
+var picturesClick = function(event) {
+  if (event.target.tagName === 'IMG') {
+    event.preventDefault();
+    var src = event.target.src;
+    var numberOfCurrentImage = null;
+    filterImages.forEach(function(picture) {
+      if (src.indexOf(picture.url) !== -1) {
+        numberOfCurrentImage = filterImages.indexOf(picture);
+        return;
+      }
+    });
+    gallery.showGallery(numberOfCurrentImage);
+  }
+}
+
 // Отображаем блок с изображениеми
 load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   pictures = loadedImages;
   filteredImages = getFilteredImages(pictures);
   setFiltrationEnabled();
   window.addEventListener('scroll', optimizedScroll);
+  picturesContainer.addEventListener('click', picturesClick);
 });
 
 // Отображаем блок с фильтрами
