@@ -247,7 +247,7 @@ var showError = require('./validation/showError');
   resizeForm.addEventListener('submit', function(evt) {
     evt.preventDefault();
 
-    if (resizeFormIsValid()) {
+    if (resizeFormIsValid(currentResizer, fieldOnLeft, fieldFromTop, fieldSide)) {
       filterImage.src = currentResizer.exportImage().src;
 
       resizeForm.classList.add('invisible');

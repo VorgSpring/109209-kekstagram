@@ -1,4 +1,12 @@
 ﻿'use strict';
+
+/**
+ * Действие при неудачной загрузке изображения
+ * @param {HTMLElement} uploadImage
+ * @param {HTMLElement} contantImage
+ */
+var toFailedLoadImage = require('../utilities').toFailedLoadImage;
+
 /**
  * Допустимое время загрузки
  * @constant {number}
@@ -23,16 +31,6 @@ if ('content' in templateElement) {
 } else {
   elementToClone = templateElement.querySelector('.picture');
 }
-
-/**
- * Действие при неудачной загрузке изображения
- * @param {HTMLElement} uploadImage
- * @param {HTMLElement} contantImage
- */
-var toFailedLoadImage = function(uploadImage, contantImage) {
-  uploadImage.src = '';
-  contantImage.classList.add('picture-load-failure');
-};
 
 /**
  * Добавляет в container объект data на основе шаблона templateElement

@@ -60,5 +60,15 @@ module.exports = {
     }
 
     return birthDayDifferent;
+  },
+
+  /**
+   * Действие при неудачной загрузке изображения
+   * @param {HTMLElement} uploadImage
+   * @param {HTMLElement} contantImage
+   */
+  toFailedLoadImage: function(uploadImage, contantImage) {
+    uploadImage.src = '';
+    contantImage.classList.add('picture-load-failure');
   }
 };
