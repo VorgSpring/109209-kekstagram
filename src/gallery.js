@@ -14,6 +14,12 @@ var toFailedLoadImage = require('./utilities').toFailedLoadImage;
 var LOAD_TIMEOUT = 10000;
 
 /**
+ * Код клавиши 'ESC'
+ * @constant {number}
+ */
+var ESC_KEY_CODE = 27;
+
+/**
  * Блок с галерей
  * @type {HTMLElement}
  */
@@ -23,19 +29,19 @@ var gallery = document.querySelector('.gallery-overlay');
  * Блок с изображением
  * @type {HTMLElement}
  */
-var gallaryContantImage = gallery.querySelector('.gallery-overlay-image');
+var galleryContantImage = gallery.querySelector('.gallery-overlay-image');
 
 /**
  * Блок с колличеством 'лайков'
  * @type {HTMLElement}
  */
-var gallaryLikesCount = gallery.querySelector('.likes-count');
+var galleryLikesCount = gallery.querySelector('.likes-count');
 
 /**
  * Блок с колличеством коментариев
  * @type {HTMLElement}
  */
-var gallaryCommentsCount = gallery.querySelector('.comments-count');
+var galleryCommentsCount = gallery.querySelector('.comments-count');
 
 /**
  * Массив с изображениями
@@ -50,7 +56,7 @@ var galleryPictures = [];
 var numberOfCurrentImage = null;
 
 /**
- * Скрывает галерею и удаляет связанные с ней делегат и событие
+ * Скрывает галерею и удаляет связанные с ней делегат
  */
 var hideGallery = function() {
   // Скрываем галерею
@@ -58,9 +64,6 @@ var hideGallery = function() {
 
   // Удаляем делегат
   window.removeEventListener('click', delegateFunction);
-
-  // Удаляем событие при нажатии 'ESC'
-  window.removeEventListener('keypress', _onDocumentKeyDown);
 };
 
 /**
@@ -71,29 +74,29 @@ var getGalleryElement = function(numberImage) {
   // Находим элемент
   var currentImage = galleryPictures[numberImage];
   // Заполняем галерею данными о комментариях, лайках
-  gallaryLikesCount.textContent = currentImage.likes;
-  gallaryCommentsCount.textContent = currentImage.comments;
+  galleryLikesCount.textContent = currentImage.likes;
+  galleryCommentsCount.textContent = currentImage.comments;
   // Добавляем фото
   var uploadImage = new Image(640, 640);
   var imageLoadTimeout = setTimeout(function() {
-    toFailedLoadImage(uploadImage, gallaryContantImage);
+    toFailedLoadImage(uploadImage, galleryContantImage);
   }, LOAD_TIMEOUT);
 
   // Обработчик загрузки
   uploadImage.onload = function() {
     uploadImage.onerror = null;
     clearTimeout(imageLoadTimeout);
-    if (gallaryContantImage.classList.contains('picture-load-failure')) {
-      gallaryContantImage.classList.remove('picture-load-failure');
+    if (galleryContantImage.classList.contains('picture-load-failure')) {
+      galleryContantImage.classList.remove('picture-load-failure');
     }
-    gallaryContantImage.src = currentImage.url;
+    galleryContantImage.src = currentImage.url;
   };
 
   // Обработчик ошибки
   uploadImage.onerror = function() {
     uploadImage.onload = null;
-    toFailedLoadImage(uploadImage, gallaryContantImage);
-    gallaryContantImage.src = '';
+    toFailedLoadImage(uploadImage, galleryContantImage);
+    galleryContantImage.src = '';
   };
 
   uploadImage.src = currentImage.url;
@@ -127,7 +130,7 @@ var _onPhotoClick = function() {
  * @param {Event} event
  */
 var _onDocumentKeyDown = function(event) {
-  if (event.keyCode === 27) {
+  if (event.keyCode === ESC_KEY_CODE) {
     hideGallery();
   }
 };
@@ -137,8 +140,11 @@ module.exports = {
    * Сохраняет полученный список с изображениями
    * @param {Array} pictures
    */
-  seveGallery: function(pictures) {
+  initGallery: function(pictures) {
     galleryPictures = pictures;
+
+    // Обработчик нажатия клавиши 'ESC'
+    window.addEventListener('keypress', _onDocumentKeyDown);
   },
 
   /**
@@ -154,9 +160,6 @@ module.exports = {
 
     // Обработчик клика
     gallery.addEventListener('click', delegateFunction);
-
-    // Обработчик нажатия клавиши 'ESC'
-    window.addEventListener('keypress', _onDocumentKeyDown);
 
     // Отображаем галерею
     gallery.classList.remove('invisible');

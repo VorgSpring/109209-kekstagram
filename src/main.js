@@ -106,7 +106,7 @@ var optimizedScroll = utilities.throttle(function() {
  */
 var renderImagesByFilter = function(filter) {
   filterImages = filteredImages[filter];
-  gallery.seveGallery(filterImages);
+  gallery.initGallery(filterImages);
   pageNumber = 0;
   renderPictures(filterImages, picturesContainer, pageNumber, PAGE_SIZE, true);
   // Если страница не заполненна
