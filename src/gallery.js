@@ -56,7 +56,7 @@ var galleryPictures = [];
 var numberOfCurrentImage = null;
 
 /**
- * Скрывает галерею и удаляет связанные с ней делегат
+ * Скрывает галерею и удаляет связанный с ней делегат
  */
 var hideGallery = function() {
   // Скрываем галерею
