@@ -9,6 +9,9 @@
 
 // Подключаем библиотеку browser-cookies
 var browserCookies = require('browser-cookies');
+// Подключаем модули валидации
+var resizeFormIsValid = require('./validation/resizeFormIsValid');
+var showError = require('./validation/showError');
 
 (function() {
   /** @enum {string} */
@@ -71,95 +74,6 @@ var browserCookies = require('browser-cookies');
   }
 
   /**
-   * Проверяет, возможно ли перевести value в число.
-   * @return {boolean}
-   */
-  function isNumeric(value) {
-    return !isNaN(parseInt(value, 10)) && isFinite(value);
-  }
-
-  function resizeFormIsValid() {
-
-    // Обнуляем ошибки всех полей
-    fieldOnLeft.setCustomValidity('');
-    fieldFromTop.setCustomValidity('');
-    fieldSide.setCustomValidity('');
-
-    // Счетчик ошибок
-    var counterError = 0;
-
-    // Получаем данные с формы
-    // Проверяем  возможно ли перевести полученные данные в число,
-    // если возможно переводим в число
-    if (isNumeric(fieldOnLeft.value)) {
-      var positionOnLeft = parseInt(fieldOnLeft.value, 10);
-    } else {
-      fieldOnLeft.setCustomValidity('В поле «слева» необходимо ввести целое число.');
-      counterError++;
-    }
-    if (isNumeric(fieldFromTop.value)) {
-      var positionFromTop = parseInt(fieldFromTop.value, 10);
-    } else {
-      fieldFromTop.setCustomValidity('В поле «сверху» необходимо ввести целое число.');
-      counterError++;
-    }
-    if (isNumeric(fieldSide.value)) {
-      var sizeSide = parseInt(fieldSide.value, 10);
-    } else {
-      fieldSide.setCustomValidity('В поле «сторона» необходимо ввести целое число.');
-      counterError++;
-    }
-
-    // Поля не могут быть отрицательными.
-    if (positionOnLeft < 0) {
-      fieldOnLeft.setCustomValidity('Поле «слева» не может быть отрицательным.');
-      counterError++;
-    }
-
-    if (positionFromTop < 0) {
-      fieldFromTop.setCustomValidity('Поле «сверху» не может быть отрицательным.');
-      counterError++;
-    }
-
-    if (sizeSide < 1) {
-      fieldSide.setCustomValidity('Поле «сторона» не может быть меньше "1".');
-      counterError++;
-    }
-
-    // Установка максимальных значений
-    // Максимальное значение для поля «сторона» это меньшая сторона фотографии
-    fieldSide.max = Math.min(currentResizer._image.naturalWidth, currentResizer._image.naturalHeight);
-
-    // Установка максимальных значений для полей «сверху» и «слева»
-    fieldOnLeft.max = currentResizer._image.naturalWidth - sizeSide;
-    fieldFromTop.max = currentResizer._image.naturalHeight - sizeSide;
-
-
-    // Проверка допустимых значений
-    if (positionOnLeft > fieldOnLeft.max) {
-      fieldOnLeft.setCustomValidity('Сумма значений полей «слева» и «сторона» не должна быть больше ширины исходного изображения.');
-      counterError++;
-    }
-
-    if (positionFromTop > fieldFromTop.max) {
-      fieldFromTop.setCustomValidity('Сумма значений полей «сверху» и «сторона» не должна быть больше высоты исходного изображения.');
-      counterError++;
-    }
-
-    if (sizeSide > fieldSide.max) {
-      fieldSide.setCustomValidity('Значение в поле «сторона» превышает допустимое значение.');
-      counterError++;
-    }
-
-    // Если есть ошибки возвращяем false
-    if (counterError > 0) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  /**
    * Форма загрузки изображения.
    * @type {HTMLFormElement}
    */
@@ -185,6 +99,7 @@ var browserCookies = require('browser-cookies');
   fieldFromTop.min = 0;
   fieldSide.min = 1;
 
+
   /**
    * Создаем новый элемент для вывода сообщений об ошибках
    */
@@ -192,23 +107,16 @@ var browserCookies = require('browser-cookies');
   errorMessage.classList.add('upload-form-error');
   resizeForm.appendChild(errorMessage);
 
-  /**
-   * Выводит сообщения об ошибках
-   * @param {HTMLFormElement} leftField
-   * @param {HTMLFormElement} topField
-   * @param {HTMLFormElement} sideField
-   */
-  function showError(leftField, topField, sideField) {
-    errorMessage.innerHTML = leftField.validationMessage + '<br>' + topField.validationMessage + '<br>' + sideField.validationMessage;
-  }
+
 
   /**
    * Обработчик изменения формы
    */
   resizeForm.addEventListener('input', function(evt) {
     evt.preventDefault();
+    currentResizer.setConstraint(parseInt(fieldOnLeft.value, 10), parseInt(fieldFromTop.value, 10), parseInt(fieldSide.value, 10));
 
-    if (resizeFormIsValid()) {
+    if (resizeFormIsValid(currentResizer, fieldOnLeft, fieldFromTop, fieldSide)) {
       forwardButton.style.opacity = 1;
       forwardButton.disabled = false;
     } else {
@@ -216,9 +124,7 @@ var browserCookies = require('browser-cookies');
       forwardButton.disabled = true;
     }
 
-    showError(fieldOnLeft, fieldFromTop, fieldSide);
-    currentResizer.setConstraint(parseInt(fieldOnLeft.value, 10), parseInt(fieldFromTop.value, 10), parseInt(fieldSide.value, 10));
-
+    showError(errorMessage, fieldOnLeft, fieldFromTop, fieldSide);
   });
 
   /**
@@ -251,7 +157,7 @@ var browserCookies = require('browser-cookies');
 
   /**
    * @param {Action} action
-   * @param {string=} message
+   * @param {string} message
    * @return {Element}
    */
   function showMessage(action, message) {
@@ -341,7 +247,7 @@ var browserCookies = require('browser-cookies');
   resizeForm.addEventListener('submit', function(evt) {
     evt.preventDefault();
 
-    if (resizeFormIsValid()) {
+    if (resizeFormIsValid(currentResizer, fieldOnLeft, fieldFromTop, fieldSide)) {
       filterImage.src = currentResizer.exportImage().src;
 
       resizeForm.classList.add('invisible');
@@ -384,19 +290,7 @@ var browserCookies = require('browser-cookies');
    * Получить веремя жизни cookie
    * @return {Date}
    */
-  function getTimeLifeCookie() {
-    var dateNow = new Date();
-    var dateBirth = new Date(dateNow.getFullYear(), 5, 17);
-    var lifeTimeCookie = 0;
-
-    if (dateNow > dateBirth) {
-      lifeTimeCookie = dateNow - dateBirth;
-    } else {
-      lifeTimeCookie = dateNow - dateBirth.setFullYear(dateNow.getFullYear() - 1);
-    }
-
-    return lifeTimeCookie;
-  }
+  var getBirthDayDifferent = require('./utilities').getBirthDayDifferent;
 
   /**
    * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
@@ -426,7 +320,7 @@ var browserCookies = require('browser-cookies');
     lastFilter = document.querySelector('.upload-filter-controls input:checked').value;
 
     // Записываем в cookie
-    browserCookies.set(cookieNameFilter, lastFilter, { expires: Date.now() + getTimeLifeCookie() });
+    browserCookies.set(cookieNameFilter, lastFilter, { expires: Date.now() + getBirthDayDifferent() });
   });
 
   /**

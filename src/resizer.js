@@ -115,7 +115,7 @@
       // Количество шагов
       var numberOfSteps = 30;
       // Шаг перемещения
-      var step = Math.ceil(this._resizeConstraint.side / numberOfSteps);
+      var step = this._resizeConstraint.side / numberOfSteps;
       this._ctx.moveTo(x, y);
 
       for (var i = 0; i < numberOfSteps; i++) {
