@@ -165,7 +165,7 @@ var picturesClick = function(event) {
     });
     gallery.showGallery(numberOfCurrentImage);
   }
-}
+};
 
 // Отображаем блок с изображениеми
 load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
