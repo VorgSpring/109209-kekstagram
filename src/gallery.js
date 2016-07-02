@@ -20,12 +20,6 @@ var LOAD_TIMEOUT = 10000;
 var gallery = document.querySelector('.gallery-overlay');
 
 /**
- * Кнопка закрыть
- * @type {HTMLElement}
- */
-var closeButton = gallery.querySelector('.gallery-overlay-close');
-
-/**
  * Блок с изображением
  * @type {HTMLElement}
  */
@@ -67,7 +61,7 @@ var hideGallery = function() {
 
   // Удаляем событие при нажатии 'ESC'
   window.removeEventListener('keypress', _onDocumentKeyDown);
-}
+};
 
 /**
  * Заполняет галерею
@@ -103,7 +97,7 @@ var getGalleryElement = function(numberImage) {
   };
 
   uploadImage.src = currentImage.url;
-}
+};
 
 /**
  * Делегат на галереи
@@ -152,7 +146,7 @@ module.exports = {
    * @param {number} numberImage
    */
   showGallery: function(numberImage) {
-    // Сохраняем номер текущего изображения 
+    // Сохраняем номер текущего изображения
     numberOfCurrentImage = numberImage;
 
     // Заполняем галерею данными
