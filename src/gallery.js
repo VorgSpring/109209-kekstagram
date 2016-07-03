@@ -95,6 +95,7 @@ var getGalleryElement = function(numberImage) {
   // Обработчик ошибки
   uploadImage.onerror = function() {
     uploadImage.onload = null;
+    clearTimeout(imageLoadTimeout);
     toFailedLoadImage(uploadImage, galleryContantImage);
     galleryContantImage.src = '';
   };
@@ -149,14 +150,14 @@ module.exports = {
 
   /**
    * Отображает галерею
-   * @param {number} numberImage
+   * @param {Object} data
    */
-  showGallery: function(numberImage) {
+  showGallery: function(data) {
     // Сохраняем номер текущего изображения
-    numberOfCurrentImage = numberImage;
+    numberOfCurrentImage = galleryPictures.indexOf(data);
 
     // Заполняем галерею данными
-    getGalleryElement(numberImage);
+    getGalleryElement(numberOfCurrentImage);
 
     // Обработчик клика
     gallery.addEventListener('click', delegateFunction);

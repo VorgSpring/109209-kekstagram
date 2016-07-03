@@ -61,6 +61,7 @@ var getPictureElement = function(data, container) {
   // Обработчик ошибки
   uploadImage.onerror = function() {
     uploadImage.onload = null;
+    clearTimeout(imageLoadTimeout);
     toFailedLoadImage(uploadImage, contantImage);
   };
 

@@ -1,6 +1,14 @@
 ﻿'use strict';
+/**
+ * Конструктор для отрисовки одной фотографии в списке
+ * @param {Object} data
+ * @param {HTMLElement} container
+ * @constructor
+ */
+var Photo = require('./picture.js');
 
-var getPictureElement = require('./getPictureElement.js');
+var renderedPictures = [];
+
 /**
  * Фунция отображения изображений
  * @param {Array.<Object>} images
@@ -11,7 +19,9 @@ var getPictureElement = require('./getPictureElement.js');
  */
 var renderPictures = function(images, container, page, pageSize, replace) {
   if (replace) {
-    container.innerHTML = '';
+    renderedPictures.forEach(function(picture) {
+      picture.remove();
+    });
   }
 
   var from = page * pageSize;
@@ -19,7 +29,7 @@ var renderPictures = function(images, container, page, pageSize, replace) {
 
   images.slice(from, to).forEach(function(picture) {
     // Перебераем список полученный с сервера
-    getPictureElement(picture, container);
+    renderedPictures.push(new Photo(picture, container));
   });
 };
 

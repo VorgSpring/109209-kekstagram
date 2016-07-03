@@ -152,28 +152,12 @@ var setFiltrationEnabled = function() {
   });
 };
 
-var picturesClick = function(event) {
-  if (event.target.tagName === 'IMG') {
-    event.preventDefault();
-    var src = event.target.src;
-    var numberOfCurrentImage = null;
-    filterImages.forEach(function(picture) {
-      if (src.indexOf(picture.url) !== -1) {
-        numberOfCurrentImage = filterImages.indexOf(picture);
-        return;
-      }
-    });
-    gallery.showGallery(numberOfCurrentImage);
-  }
-};
-
 // Отображаем блок с изображениеми
 load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   pictures = loadedImages;
   filteredImages = getFilteredImages(pictures);
   setFiltrationEnabled();
   window.addEventListener('scroll', optimizedScroll);
-  picturesContainer.addEventListener('click', picturesClick);
 });
 
 // Отображаем блок с фильтрами
