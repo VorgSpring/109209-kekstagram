@@ -7,6 +7,10 @@
  */
 var toFailedLoadImage = require('./utilities').toFailedLoadImage;
 
+/**
+ * Конструктор для отрисовки галереи
+ * @constructor
+ */
 var Gallery = function() {
 
   var self = this;
