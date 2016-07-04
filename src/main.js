@@ -106,6 +106,8 @@ var optimizedScroll = utilities.throttle(function() {
  */
 var renderImagesByFilter = function(filter) {
   filterImages = filteredImages[filter];
+  // Запоминаем выбранный фильтр
+  localStorage.setItem('checked', filter);
   gallery.initGallery(filterImages);
   pageNumber = 0;
   renderPictures(filterImages, picturesContainer, pageNumber, PAGE_SIZE, true);
@@ -127,6 +129,13 @@ var renderImagesByFilter = function(filter) {
 var setFiltrationEnabled = function() {
   // Находим все радио кнопки
   var filtersItem = document.querySelectorAll('.filters-radio');
+  // Если есть сохраненный фильтр
+  if (localStorage.getItem('checked')) {
+    // Находим сохраненный фильтр
+    var filterschecked = document.querySelector('#filter-' + localStorage.getItem('checked'));
+    // Устанавливаем фильтр по умолчанию
+    filterschecked.checked = true;
+  }
   for (var i = 0; i < filtersItem.length; i++) {
     // Посчитываем, сколько элементов подходит под каждый из фильтров
     var filtersArrayLength = filteredImages[filtersItem[i].value].length;
