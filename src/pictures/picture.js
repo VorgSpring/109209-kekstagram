@@ -13,7 +13,7 @@ var getPictureElement = require('./getPictureElement.js');
  * Отображает галерею
  * @param {Object} data
  */
-var showGallery = require('../gallery.js').showGallery;
+var showGallery = require('../gallery').showGallery;
 
 
 /**
@@ -31,7 +31,7 @@ var Photo = function(data, container) {
   };
   this.remove = function() {
     this.element.removeEventListener('click', this.onClick);
-    this.element.parentNode.removeChild(this.element);
+    this.element.remove();
   };
 
   this.element.addEventListener('click', this.onClick);

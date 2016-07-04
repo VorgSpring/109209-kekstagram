@@ -130,6 +130,9 @@ var Gallery = function() {
   this._onPhotoClick = function() {
     // Увиличиваем номер текущего изображения
     self.numberOfCurrentImage++;
+    if (self.numberOfCurrentImage === galleryPictures.length) {
+      self.numberOfCurrentImage = 0;
+    }
     // Заполняем галерею данными
     self.getGalleryElement(self.numberOfCurrentImage);
   };
