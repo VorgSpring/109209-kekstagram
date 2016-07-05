@@ -21,7 +21,7 @@ var Photo = function(data, container) {
   this.onClick = function(event) {
     event.preventDefault();
     // Добавляем в хэш адреса страницы url текущего изображения
-    location.hash ='photo/' + data.url;
+    location.hash = 'photo/' + data.url;
   };
   this.remove = function() {
     this.element.removeEventListener('click', this.onClick);
