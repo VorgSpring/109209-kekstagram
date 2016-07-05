@@ -170,9 +170,16 @@ var setFiltrationEnabled = function() {
 // Отображаем блок с изображениеми
 load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   pictures = loadedImages;
+  // Создаём объект со списками отфильтрованных изображений
   filteredImages = getFilteredImages(pictures);
+  // Добавлем обработчик клика на элементы фильтра и отображаем выбранный по умолчанию фильтр
   setFiltrationEnabled();
+  // Обработчик прокрутки scrollbar
   window.addEventListener('scroll', optimizedScroll);
+
+  if (location.hash !== '') {
+    gallery.showGallery(location.hash);
+  }
 });
 
 // Отображаем блок с фильтрами
