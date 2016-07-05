@@ -10,13 +10,6 @@ var getPictureElement = require('./getPictureElement.js');
 
 
 /**
- * Отображает галерею
- * @param {Object} data
- */
-var showGallery = require('../gallery').showGallery;
-
-
-/**
  * Конструктор для отрисовки одной фотографии в списке
  * @param {Object} data
  * @param {HTMLElement} container
@@ -27,7 +20,8 @@ var Photo = function(data, container) {
   this.element = getPictureElement(data, container);
   this.onClick = function(event) {
     event.preventDefault();
-    showGallery(data);
+    // Добавляем в хэш адреса страницы url текущего изображения
+    location.hash ='photo/' + data.url;
   };
   this.remove = function() {
     this.element.removeEventListener('click', this.onClick);
