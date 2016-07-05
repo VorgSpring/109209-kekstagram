@@ -179,7 +179,7 @@ var Gallery = function() {
    */
   this._onHashChange = function() {
     var adress = location.hash;
-    if (adress.match(REG_EXP)[1] === null) {
+    if (adress.match(REG_EXP)) {
       self.hideGallery();
     } else {
       self.showGallery(adress);
