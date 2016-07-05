@@ -64,7 +64,7 @@ var Gallery = function() {
   this.numberOfCurrentImage = null;
 
   /**
-   * Скрывает галерею и удаляет связанный с ней делегат
+   * Скрывает галерею, удаляет связанный с ней делегат и чистит хэш адресной строки
    */
   this.hideGallery = function() {
     // Скрываем галерею
@@ -72,6 +72,9 @@ var Gallery = function() {
 
     // Удаляем делегат
     self.element.gallery.removeEventListener('click', self.delegateFunction);
+
+    // Чистим хэш адресной строки
+    location.hash = '';
   };
 
   /**
