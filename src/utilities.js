@@ -83,6 +83,7 @@ module.exports = {
       if (array[i].url === url) {
         return i;
       }
-    };
+    }
+    return null;
   }
 };
