@@ -103,7 +103,7 @@ var Gallery = function() {
       self.numberOfCurrentImage = searchInArray(galleryPictures, numberOrUrlOfImage);
       currentImage = galleryPictures[self.numberOfCurrentImage];
     } else if (typeof numberOrUrlOfImage === 'number') {
-      self.numberOfCurrentImage = numberOrUrlOfImage
+      self.numberOfCurrentImage = numberOrUrlOfImage;
       currentImage = galleryPictures[numberOrUrlOfImage];
     }
     // Заполняем галерею данными о комментариях, лайках
@@ -184,7 +184,7 @@ var Gallery = function() {
     } else {
       self.showGallery(adress);
     }
-  }
+  };
 
   /**
    * Сохраняет полученный список с изображениями
