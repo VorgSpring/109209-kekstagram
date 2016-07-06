@@ -7,7 +7,7 @@ var getFilteredImages = require('./filter');
 var renderPictures = require('./pictures/renderPictures');
 var load = require('./load');
 var utilities = require('./utilities');
-var gallery = require('./gallery.js');
+var gallery = require('./gallery');
 
 /**
  * Массив с изображениями, которые полученны с сервера

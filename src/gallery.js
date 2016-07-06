@@ -16,12 +16,26 @@ var toFailedLoadImage = require('./utilities').toFailedLoadImage;
 var searchInArray = require('./utilities.js').searchInArray;
 
 /**
+ * Описывает базовую DOM-компоненту
+ * @constructor
+ */
+var BaseComponent = require('./base-component');
+
+/**
+ * Наследует один тип от другого, продлевая цепочку прототипов с использованием пустого конструктора
+ * @param {Type}Parent
+ * @param {Type}Child
+ */
+var inherit = require('./utilities.js').inherit;
+
+
+/**
  * Конструктор для отрисовки галереи
  * @constructor
  */
 var Gallery = function() {
 
-  
+
   /**
    * Допустимое время загрузки
    * @constant {number}
@@ -50,19 +64,19 @@ var Gallery = function() {
        * Блок с изображением
        * @type {HTMLElement}
        */
-    galleryContantImage: document.querySelector('.gallery-overlay-image'),
+    contantImage: document.querySelector('.gallery-overlay-image'),
 
     /**
      * Блок с колличеством 'лайков'
      * @type {HTMLElement}
      */
-    galleryLikesCount: document.querySelector('.likes-count'),
+    likesCount: document.querySelector('.likes-count'),
 
     /**
      * Блок с колличеством коментариев
      * @type {HTMLElement}
      */
-    galleryCommentsCount: document.querySelector('.comments-count')
+    commentsCount: document.querySelector('.comments-count')
   };
 
   /**
@@ -76,6 +90,8 @@ var Gallery = function() {
    * @type {number}
    */
   this.numberOfCurrentImage = null;
+
+  BaseComponent.call(this, this.element);
 
   /**
    * Скрывает галерею, удаляет связанный с ней делегат и чистит хэш адресной строки
@@ -123,6 +139,9 @@ var Gallery = function() {
   this.showGallery = this.showGallery.bind(this);
 };
 
+
+inherit(Gallery, BaseComponent);
+
 Gallery.prototype.hideGallery = function() {
   // Скрываем галерею
   this.element.gallery.classList.add('invisible');
@@ -145,35 +164,10 @@ Gallery.prototype.getGalleryElement = function(numberOrUrlOfImage) {
     this.numberOfCurrentImage = numberOrUrlOfImage;
     currentImage = this.galleryPictures[numberOrUrlOfImage];
   }
+  // Размер вставляемого изображения
+  var size = 640;
   // Заполняем галерею данными о комментариях, лайках
-  this.element.galleryLikesCount.textContent = currentImage.likes;
-  this.element.galleryCommentsCount.textContent = currentImage.comments;
-  var galleryContantImage = this.element.galleryContantImage;
-  // Добавляем фото
-  var uploadImage = new Image(640, 640);
-  var imageLoadTimeout = setTimeout(function() {
-    galleryContantImage.classList.add('picture-load-failure');
-  }, this.LOAD_TIMEOUT);
-
-  // Обработчик загрузки
-  uploadImage.onload = function() {
-    uploadImage.onerror = null;
-    clearTimeout(imageLoadTimeout);
-    if (galleryContantImage.classList.contains('picture-load-failure')) {
-      galleryContantImage.classList.remove('picture-load-failure');
-    }
-    galleryContantImage.src = currentImage.url;
-  };
-
-  // Обработчик ошибки
-  uploadImage.onerror = function() {
-    uploadImage.onload = null;
-    clearTimeout(imageLoadTimeout);
-    galleryContantImage.classList.add('picture-load-failure');
-    galleryContantImage.src = '';
-  };
-
-  uploadImage.src = currentImage.url;
+  BaseComponent.prototype.create.call(this, currentImage, size);
 };
 
 Gallery.prototype.delegateFunction = function(event) {
@@ -193,7 +187,7 @@ Gallery.prototype._onPhotoClick = function() {
   }
 
   // Добавляем в хэш адреса страницы url следующего изображения
-  location.hash = 'photo/' + this.galleryPictures[this.numberOfCurrentImage].url;
+  BaseComponent.prototype.onClick.call(this, this.galleryPictures[this.numberOfCurrentImage].url);
 };
 
 Gallery.prototype._onDocumentKeyDown = function(event) {
@@ -223,7 +217,7 @@ Gallery.prototype.initGallery = function(pictures) {
 
 Gallery.prototype.showGallery = function(pictureUrl) {
   pictureUrl = pictureUrl.match(this.REG_EXP);
-  if (!pictureUrl) {
+  if (pictureUrl === '') {
     return;
   } else {
     pictureUrl = pictureUrl[1];

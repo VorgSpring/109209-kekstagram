@@ -82,7 +82,7 @@ module.exports = {
    * @param {Type}Parent
    * @param {Type}Child
    */
-  inherit: function(Parent, Child) {
+  inherit: function(Child, Parent) {
     var EmptyConstructor = function() { };
     EmptyConstructor.prototype = Parent.prototype;
     Child.prototype = new EmptyConstructor();
