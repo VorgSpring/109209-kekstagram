@@ -59,7 +59,7 @@ BaseComponent.prototype.create = function(data, size) {
  */
 BaseComponent.prototype.onClick = function(url) {
   location.hash = 'photo/' + url;
-}
+};
 
 /**
  * Добавляет element в container

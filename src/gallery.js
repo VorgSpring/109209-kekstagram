@@ -1,13 +1,6 @@
 ﻿'use strict';
 
 /**
- * Действие при неудачной загрузке изображения
- * @param {HTMLElement} uploadImage
- * @param {HTMLElement} contantImage
- */
-var toFailedLoadImage = require('./utilities').toFailedLoadImage;
-
-/**
  * Находит в массиве объект который содержит url и возвращает этот объект
  * @param {Array.<Object>} array
  * @param {string} url
@@ -23,8 +16,8 @@ var BaseComponent = require('./base-component');
 
 /**
  * Наследует один тип от другого, продлевая цепочку прототипов с использованием пустого конструктора
- * @param {Type}Parent
- * @param {Type}Child
+ * @param {Type} Parent
+ * @param {Type} Child
  */
 var inherit = require('./utilities.js').inherit;
 

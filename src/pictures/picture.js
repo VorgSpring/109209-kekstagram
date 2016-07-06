@@ -16,8 +16,8 @@ var BaseComponent = require('../base-component');
 
 /**
  * Наследует один тип от другого, продлевая цепочку прототипов с использованием пустого конструктора
- * @param {Type}Parent
- * @param {Type}Child
+ * @param {Type} Parent
+ * @param {Type} Child
  */
 var inherit = require('../utilities.js').inherit;
 
