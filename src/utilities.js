@@ -75,5 +75,16 @@ module.exports = {
       }
     }
     return null;
+  },
+
+  /**
+   * Наследует один тип от другого, продлевая цепочку прототипов с использованием пустого конструктора
+   * @param {Type}Parent
+   * @param {Type}Child
+   */
+  inherit: function(Parent, Child) {
+    var EmptyConstructor = function() { };
+    EmptyConstructor.prototype = Parent.prototype;
+    Child.prototype = new EmptyConstructor();
   }
 };
