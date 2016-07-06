@@ -48,7 +48,7 @@ var getPictureElement = function(data, container) {
   var contantImage = element.querySelector('img');
   var uploadImage = new Image(182, 182);
   var imageLoadTimeout = setTimeout(function() {
-    toFailedLoadImage(uploadImage, contantImage);
+    contantImage.classList.add('picture-load-failure');
   }, LOAD_TIMEOUT);
 
   // Обработчик загрузки
@@ -62,7 +62,7 @@ var getPictureElement = function(data, container) {
   uploadImage.onerror = function() {
     uploadImage.onload = null;
     clearTimeout(imageLoadTimeout);
-    toFailedLoadImage(uploadImage, contantImage);
+    contantImage.classList.add('picture-load-failure');
   };
 
   uploadImage.src = data.url;

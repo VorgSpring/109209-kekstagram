@@ -63,16 +63,6 @@ module.exports = {
   },
 
   /**
-   * Действие при неудачной загрузке изображения
-   * @param {HTMLElement} uploadImage
-   * @param {HTMLElement} contantImage
-   */
-  toFailedLoadImage: function(uploadImage, contantImage) {
-    uploadImage.src = '';
-    contantImage.classList.add('picture-load-failure');
-  },
-
-  /**
    * Находит в массиве объект который содержит url и возвращает индекс в массиве
    * @param {Array.<Object>} array
    * @param {string} url
