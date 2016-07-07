@@ -15,7 +15,7 @@ var Element = function(data) {
 /**
  * Увиличиваем количество likes
  */
-Element.prototype.setLikesCount = function() {
+Element.prototype.increaseLikesCount = function() {
   this.likes++;
 };
 
