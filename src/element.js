@@ -1,5 +1,10 @@
 ﻿'use strict';
 
+/**
+ * Конструктор для создания объекта в списке
+ * @param {Object} data
+ * @constructor
+ */
 var Element = function(data) {
   this.likes = data.likes;
   this.comments = data.comments;
@@ -7,6 +12,9 @@ var Element = function(data) {
   this.date = data.date;
 };
 
+/**
+ * Увиличиваем количество likes
+ */
 Element.prototype.setLikesCount = function() {
   this.likes++;
 };

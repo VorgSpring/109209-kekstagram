@@ -49,6 +49,7 @@ utilities.inherit(Photo, BaseComponent);
 Photo.prototype.onClick = function(event) {
   event.preventDefault();
   if (event.target.classList.contains('picture-likes')) {
+    // Увиличиваем количество likes
     this.data.setLikesCount();
     utilities.toUpdateFieldLikes(this.element, this.data);
   } else {

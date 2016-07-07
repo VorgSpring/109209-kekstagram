@@ -6,6 +6,7 @@ module.exports = {
    * @constant {number}
    */
   LOAD_TIMEOUT: 5000,
+
   /**
    * Выводит значение message в скобках в теге <sup/> на элементе item
    * @param {HTMLElement} item
@@ -96,6 +97,7 @@ module.exports = {
 
   /**
    * Создание DOM-разметки в element
+   * @param {HTMLElement} element
    * @param {Object} data
    * @param {number} size
    */
@@ -132,7 +134,22 @@ module.exports = {
     uploadImage.src = data.url;
   },
 
+  /**
+   * Обновляет поле likes в element
+   * @param {HTMLElement} element
+   * @param {Object} data
+   */
   toUpdateFieldLikes: function(element, data) {
     element.likesCount.textContent = data.likes;
+  },
+
+  /**
+   * Ищет по url поле likes в element
+   * @param {Object} data
+   */
+  syncLikes: function(data) {
+    var selector = '.pictures img[src="' + data.url + '"] + span .picture-likes';
+    var likesContainer = document.querySelector(selector);
+    likesContainer.textContent = data.likes;
   }
 };
