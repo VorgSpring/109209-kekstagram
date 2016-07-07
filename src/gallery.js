@@ -131,7 +131,10 @@ Gallery.prototype.getGalleryElement = function(numberOrUrlOfImage) {
 Gallery.prototype.delegateFunction = function(event) {
   if (event.target.classList.contains('gallery-overlay-image')) {
     this._onPhotoClick();
-  } else if (event.target.classList.contains('gallery-overlay-close') ||
+  } else if (event.target.classList.contains('likes-count')) {
+    this.galleryPictures[this.numberOfCurrentImage].setLikesCount();
+    utilities.toUpdateFieldLikes(this.element, this.galleryPictures[this.numberOfCurrentImage]);
+  }else if (event.target.classList.contains('gallery-overlay-close') ||
     event.target.classList.contains('gallery-overlay')) {
     this.hideGallery();
   }

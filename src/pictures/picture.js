@@ -32,9 +32,9 @@ var Photo = function(data, container) {
   this.remove = this.remove.bind(this);
   this.addEvent(this.element,'click', this.onClick.bind(this));
   // Размер вставляемого изображения
-  var size = 182;
+  this.sizeImage = 182;
   // Заполняем element данными о комментариях, лайках
-  utilities.createDOM(this.element, this.data, size);
+  utilities.createDOM(this.element, this.data, this.sizeImage);
   // Вставляем element в container
   this.create.call(this, container);
 };
@@ -48,15 +48,20 @@ utilities.inherit(Photo, BaseComponent);
  */
 Photo.prototype.onClick = function(event) {
   event.preventDefault();
+  if (event.target.classList.contains('picture-likes')) {
+    this.data.setLikesCount();
+    utilities.toUpdateFieldLikes(this.element, this.data);
+  } else {
   // Добавляем в хэш адреса страницы url текущего изображения
-  location.hash = 'photo/' + this.data.url;
+    location.hash = 'photo/' + this.data.url;
+  }
 };
 
 /**
  * Удаляет element из разметки
  */
 Photo.prototype.remove = function() {
-  this.remove.call(this);
+  BaseComponent.prototype.remove.call(this);
 };
 
 module.exports = Photo;

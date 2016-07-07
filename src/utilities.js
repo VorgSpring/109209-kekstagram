@@ -130,5 +130,9 @@ module.exports = {
     };
 
     uploadImage.src = data.url;
+  },
+
+  toUpdateFieldLikes: function(element, data) {
+    element.likesCount.textContent = data.likes;
   }
 };

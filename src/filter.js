@@ -1,4 +1,5 @@
 ﻿'use strict';
+var Element = require('./element.js');
 
 /**
  * Четыре дня в миллисекундах
@@ -34,9 +35,12 @@ var getFilteredList = function(list) {
     'discussed': []
   };
 
-  var listToFilter = list.slice(0);
+  var listToFilter = [];
+  list.slice(0).forEach(function(item) {
+    listToFilter.push(new Element(item));
+  });
 
-  filteredList.popular = list.slice(0);
+  filteredList.popular = listToFilter.slice();
 
   filteredList.new = getListInFourDays(listToFilter).sort(function(a, b) {
     return Date.parse(b.date) - Date.parse(a.date);
