@@ -56,6 +56,6 @@ BaseComponent.prototype = {
     this.removeEvents();
     this.removeElement();
   }
-}
+};
 
 module.exports = BaseComponent;

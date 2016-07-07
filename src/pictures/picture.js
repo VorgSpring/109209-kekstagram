@@ -30,7 +30,7 @@ var Photo = function(data, container) {
   this.element = getPictureElement();
   BaseComponent.call(this, this.element);
   this.remove = this.remove.bind(this);
-  this.addEvent(this.element,'click', this.onClick.bind(this));
+  this.addEvent(this.element, 'click', this.onClick.bind(this));
   // Размер вставляемого изображения
   this.sizeImage = 182;
   // Заполняем element данными о комментариях, лайках
