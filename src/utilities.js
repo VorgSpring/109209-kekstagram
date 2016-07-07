@@ -2,6 +2,11 @@
 
 module.exports = {
   /**
+   * Допустимое время загрузки изображения
+   * @constant {number}
+   */
+  LOAD_TIMEOUT: 5000,
+  /**
    * Выводит значение message в скобках в теге <sup/> на элементе item
    * @param {HTMLElement} item
    * @param {string} message
@@ -86,5 +91,44 @@ module.exports = {
     var EmptyConstructor = function() { };
     EmptyConstructor.prototype = Parent.prototype;
     Child.prototype = new EmptyConstructor();
+    Child.prototype.constructor = Child;
+  },
+
+  /**
+   * Создание DOM-разметки в element
+   * @param {Object} data
+   * @param {number} size
+   */
+  createDOM: function(element, data, size) {
+    element.likesCount.textContent = data.likes;
+    element.commentsCount.textContent = data.comments;
+    var contantImage = element.contantImage;
+    // Добавляем фото
+    var uploadImage = new Image();
+    var imageLoadTimeout = setTimeout(function() {
+      contantImage.classList.add('picture-load-failure');
+    }, this.LOAD_TIMEOUT);
+
+    // Обработчик загрузки
+    uploadImage.onload = function() {
+      uploadImage.onerror = null;
+      clearTimeout(imageLoadTimeout);
+      if (contantImage.classList.contains('picture-load-failure')) {
+        contantImage.classList.remove('picture-load-failure');
+      }
+      contantImage.width = size;
+      contantImage.height = size;
+      contantImage.src = data.url;
+    };
+
+    // Обработчик ошибки
+    uploadImage.onerror = function() {
+      uploadImage.onload = null;
+      clearTimeout(imageLoadTimeout);
+      contantImage.classList.add('picture-load-failure');
+      contantImage.src = '';
+    };
+
+    uploadImage.src = data.url;
   }
 };

@@ -6,74 +6,63 @@
  * @constructor
  */
 var BaseComponent = function(element) {
-  /**
-   * Допустимое время загрузки изображения
-   * @constant {number}
-   */
-  this.LOAD_TIMEOUT = 5000;
-
   this.element = element;
+  this.activeEvents = [];
 };
 
-/**
- * Создание DOM-разметки в element
- * @param {Object} data
- * @param {number} size
- */
-BaseComponent.prototype.create = function(data, size) {
-  this.element.likesCount.textContent = data.likes;
-  this.element.commentsCount.textContent = data.comments;
-  var contantImage = this.element.contantImage;
-  // Добавляем фото
-  var uploadImage = new Image();
-  var imageLoadTimeout = setTimeout(function() {
-    contantImage.classList.add('picture-load-failure');
-  }, this.LOAD_TIMEOUT);
+BaseComponent.prototype = {
+  /**
+   * Обработчик клика
+   * @param {string} url
+   */
+  onClick: function(url) {
+    location.hash = 'photo/' + url;
+  },
 
-  // Обработчик загрузки
-  uploadImage.onload = function() {
-    uploadImage.onerror = null;
-    clearTimeout(imageLoadTimeout);
-    if (contantImage.classList.contains('picture-load-failure')) {
-      contantImage.classList.remove('picture-load-failure');
-    }
-    contantImage.width = size;
-    contantImage.height = size;
-    contantImage.src = data.url;
-  };
+  /**
+   * Добавляет element в container
+   * @param {HTMLElement} container
+   */
+  create: function(container) {
+    container.appendChild(this.element);
+  },
 
-  // Обработчик ошибки
-  uploadImage.onerror = function() {
-    uploadImage.onload = null;
-    clearTimeout(imageLoadTimeout);
-    contantImage.classList.add('picture-load-failure');
-    contantImage.src = '';
-  };
+  /**
+   * Удаляет element из разметки
+   */
+  removeElement: function() {
+    this.element.parentNode.removeChild(this.element);
+  },
 
-  uploadImage.src = data.url;
-};
+  /**
+   * Добавляет обработчик события событие
+   * @param {HTMLElement} element
+   * @param {string} typeEvent
+   * @param {function} eventFunction
+   */
+  addEvent: function(element, typeEvent, eventFunction) {
+    element.addEventListener(typeEvent, eventFunction);
+    var events = [element, typeEvent, eventFunction];
+    this.activeEvents.push(events);
+  },
 
-/**
- * Обработчик клика
- * @param {string} url
- */
-BaseComponent.prototype.onClick = function(url) {
-  location.hash = 'photo/' + url;
-};
+  /**
+   * Удаляет обработчики собитий
+   */
+  removeEvents: function() {
+    this.activeEvents.forEach(function(item) {
+      item[0].removeEventListener(item[1], item[2]);
+    });
+    this.activeEvents = null;
+  },
 
-/**
- * Добавляет element в container
- * @param {HTMLElement} container
- */
-BaseComponent.prototype.insert = function(container) {
-  container.appendChild(this.element);
-};
-
-/**
- * Удаляет element из разметки
- */
-BaseComponent.prototype.remove = function() {
-  this.element.parentNode.removeChild(this.element);
-};
+  /**
+   * Удаляет обработчики собитий и елемент
+   */
+  remove: function() {
+    this.removeEvents();
+    this.removeElement();
+  }
+}
 
 module.exports = BaseComponent;

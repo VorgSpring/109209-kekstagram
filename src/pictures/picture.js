@@ -15,13 +15,9 @@ var getPictureElement = require('./getPictureElement');
 var BaseComponent = require('../base-component');
 
 /**
- * Наследует один тип от другого, продлевая цепочку прототипов с использованием пустого конструктора
- * @param {Type} Parent
- * @param {Type} Child
+ * Базовые функции
  */
-var inherit = require('../utilities.js').inherit;
-
-
+var utilities = require('../utilities');
 
 /**
  * Конструктор для отрисовки одной фотографии в списке
@@ -32,19 +28,19 @@ var inherit = require('../utilities.js').inherit;
 var Photo = function(data, container) {
   this.data = data;
   this.element = getPictureElement();
-  this.onClick = this.onClick.bind(this);
-  this.remove = this.remove.bind(this);
-  this.element.addEventListener('click', this.onClick);
   BaseComponent.call(this, this.element);
+  this.remove = this.remove.bind(this);
+  this.addEvent(this.element,'click', this.onClick.bind(this));
   // Размер вставляемого изображения
   var size = 182;
   // Заполняем element данными о комментариях, лайках
-  this.create.call(this, this.data, size);
+  utilities.createDOM(this.element, this.data, size);
   // Вставляем element в container
-  this.insert.call(this, container);
+  this.create.call(this, container);
 };
 
-inherit(Photo, BaseComponent);
+// Наследуем цепочку прототипов
+utilities.inherit(Photo, BaseComponent);
 
 /**
  * Обработчик клика на изображении
@@ -60,7 +56,6 @@ Photo.prototype.onClick = function(event) {
  * Удаляет element из разметки
  */
 Photo.prototype.remove = function() {
-  this.element.removeEventListener('click', this.onClick);
   BaseComponent.prototype.remove.call(this);
 };
 
