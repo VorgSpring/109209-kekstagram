@@ -102,31 +102,31 @@ module.exports = {
   createDOM: function(element, data, size) {
     element.likesCount.textContent = data.likes;
     element.commentsCount.textContent = data.comments;
-    var contantImage = element.contantImage;
+    var contentImage = element.contantImage;
     // Добавляем фото
     var uploadImage = new Image();
     var imageLoadTimeout = setTimeout(function() {
-      contantImage.classList.add('picture-load-failure');
+      contentImage.classList.add('picture-load-failure');
     }, this.LOAD_TIMEOUT);
 
     // Обработчик загрузки
     uploadImage.onload = function() {
       uploadImage.onerror = null;
       clearTimeout(imageLoadTimeout);
-      if (contantImage.classList.contains('picture-load-failure')) {
-        contantImage.classList.remove('picture-load-failure');
+      if (contentImage.classList.contains('picture-load-failure')) {
+        contentImage.classList.remove('picture-load-failure');
       }
-      contantImage.width = size;
-      contantImage.height = size;
-      contantImage.src = data.url;
+      contentImage.width = size;
+      contentImage.height = size;
+      contentImage.src = data.url;
     };
 
     // Обработчик ошибки
     uploadImage.onerror = function() {
       uploadImage.onload = null;
       clearTimeout(imageLoadTimeout);
-      contantImage.classList.add('picture-load-failure');
-      contantImage.src = '';
+      contentImage.classList.add('picture-load-failure');
+      contentImage.src = '';
     };
 
     uploadImage.src = data.url;

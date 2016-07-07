@@ -89,127 +89,124 @@ var Gallery = function() {
 // Наследуем цепочку прототипов
 utilities.inherit(Gallery, BaseComponent);
 
-Gallery.prototype = {
+/**
+ * Скрывает галерею, удаляет связанный с ней делегат и чистит хэш адресной строки
+ */
+Gallery.prototype.hideGallery = function() {
+  // Скрываем галерею
+  this.element.gallery.classList.add('invisible');
 
-  /**
-   * Скрывает галерею, удаляет связанный с ней делегат и чистит хэш адресной строки
-   */
-  hideGallery: function() {
-    // Скрываем галерею
-    this.element.gallery.classList.add('invisible');
+  // Удаляем делегат
+  this.removeEvents.call(this);
 
-    // Удаляем делегат
-    BaseComponent.prototype.removeEvents.call(this);
+  // Чистим хэш адресной строки
+  location.hash = '';
+};
 
-    // Чистим хэш адресной строки
-    location.hash = '';
-  },
-
-  /**
-   * Заполняет галерею
-   * @param {number} or {string} numberOrUrlOfImage
-   */
-  getGalleryElement: function(numberOrUrlOfImage) {
-    // Находим элемент
-    var currentObject = null;
-    // Сохраняем номер текущего изображения
-    if (typeof numberOrUrlOfImage === 'string') {
-      this.numberOfCurrentImage = searchInArray(this.galleryPictures, numberOrUrlOfImage);
-      currentObject = this.galleryPictures[this.numberOfCurrentImage];
-    } else if (typeof numberOrUrlOfImage === 'number') {
-      this.numberOfCurrentImage = numberOrUrlOfImage;
-      currentObject = this.galleryPictures[numberOrUrlOfImage];
-    }
-    // Размер вставляемого изображения
-    var size = 640;
-    // Заполняем галерею данными о комментариях, лайках
-    utilities.createDOM(this.element, currentObject, size);
-  },
-
-  /**
-   * Делегат на галереи
-   * @param {Event} event
-   */
-  delegateFunction: function(event) {
-    if (event.target.classList.contains('gallery-overlay-image')) {
-      this._onPhotoClick();
-    } else if (event.target.classList.contains('gallery-overlay-close') ||
-      event.target.classList.contains('gallery-overlay')) {
-      this.hideGallery();
-    }
-  },
-
-  /**
-   * Обработчик клика на изображении
-   */
-  _onPhotoClick: function() {
-    // Увиличиваем номер текущего изображения
-    this.numberOfCurrentImage++;
-    if (this.numberOfCurrentImage === this.galleryPictures.length) {
-      this.numberOfCurrentImage = 0;
-    }
-
-    // Добавляем в хэш адреса страницы url следующего изображения
-    BaseComponent.prototype.onClick.call(this, this.galleryPictures[this.numberOfCurrentImage].url);
-  },
-
-  /**
-   * Обработчик нажатия клавиши 'ESC'
-   * @param {Event} event
-   */
-  _onDocumentKeyDown: function(event) {
-    if (event.keyCode === this.ESC_KEY_CODE) {
-      this.hideGallery();
-    }
-  },
-
-  /**
-   * Обработчик изменения адресной строки
-   */
-  _onHashChange: function() {
-    var adress = location.hash;
-    if (!adress.match(this.REG_EXP)) {
-      this.hideGallery();
-    } else {
-      this.showGallery(adress);
-    }
-  },
-
-  /**
-   * Сохраняет полученный список с изображениями
-   * @param {Array} pictures
-   */
-  initGallery: function(pictures) {
-    this.galleryPictures = pictures;
-
-    // Обработчик нажатия клавиши 'ESC'
-    window.addEventListener('keypress', this._onDocumentKeyDown);
-
-    // Обработчик изменения адресной строки
-    window.addEventListener('hashchange', this._onHashChange);
-  },
-
-  /**
-   * Отображает галерею
-   * @param {string} pictureUrl
-   */
-  showGallery: function(pictureUrl) {
-    pictureUrl = pictureUrl.match(this.REG_EXP);
-    if (pictureUrl === '') {
-      return;
-    } else {
-      pictureUrl = pictureUrl[1];
-    }
-    // Заполняем галерею данными
-    this.getGalleryElement(pictureUrl);
-
-    // Обработчик клика
-    BaseComponent.prototype.addEvent(this.element.gallery, 'click', this.delegateFunction.bind(this));
-
-    // Отображаем галерею
-    this.element.gallery.classList.remove('invisible');
+/**
+ * Заполняет галерею
+ * @param {number} or {string} numberOrUrlOfImage
+ */
+Gallery.prototype.getGalleryElement = function(numberOrUrlOfImage) {
+  // Находим элемент
+  var currentObject = null;
+  // Сохраняем номер текущего изображения
+  if (typeof numberOrUrlOfImage === 'string') {
+    this.numberOfCurrentImage = searchInArray(this.galleryPictures, numberOrUrlOfImage);
+    currentObject = this.galleryPictures[this.numberOfCurrentImage];
+  } else if (typeof numberOrUrlOfImage === 'number') {
+    this.numberOfCurrentImage = numberOrUrlOfImage;
+    currentObject = this.galleryPictures[numberOrUrlOfImage];
   }
-}
+  // Размер вставляемого изображения
+  var size = 640;
+  // Заполняем галерею данными о комментариях, лайках
+  utilities.createDOM(this.element, currentObject, size);
+};
+
+/**
+ * Делегат на галереи
+ * @param {Event} event
+ */
+Gallery.prototype.delegateFunction = function(event) {
+  if (event.target.classList.contains('gallery-overlay-image')) {
+    this._onPhotoClick();
+  } else if (event.target.classList.contains('gallery-overlay-close') ||
+    event.target.classList.contains('gallery-overlay')) {
+    this.hideGallery();
+  }
+};
+
+/**
+ * Обработчик клика на изображении
+ */
+Gallery.prototype._onPhotoClick = function() {
+  // Увиличиваем номер текущего изображения
+  this.numberOfCurrentImage++;
+  if (this.numberOfCurrentImage === this.galleryPictures.length) {
+    this.numberOfCurrentImage = 0;
+  }
+
+  // Добавляем в хэш адреса страницы url следующего изображения
+  location.hash = 'photo/' + this.galleryPictures[this.numberOfCurrentImage].url;
+};
+
+/**
+ * Обработчик нажатия клавиши 'ESC'
+ * @param {Event} event
+ */
+Gallery.prototype._onDocumentKeyDown = function(event) {
+  if (event.keyCode === this.ESC_KEY_CODE) {
+    this.hideGallery();
+  }
+};
+
+/**
+ * Обработчик изменения адресной строки
+ */
+Gallery.prototype._onHashChange = function() {
+  var adress = location.hash;
+  if (!adress.match(this.REG_EXP)) {
+    this.hideGallery();
+  } else {
+    this.showGallery(adress);
+  }
+};
+
+/**
+ * Сохраняет полученный список с изображениями
+ * @param {Array} pictures
+ */
+Gallery.prototype.initGallery = function(pictures) {
+  this.galleryPictures = pictures;
+
+  // Обработчик нажатия клавиши 'ESC'
+  window.addEventListener('keypress', this._onDocumentKeyDown);
+
+  // Обработчик изменения адресной строки
+  window.addEventListener('hashchange', this._onHashChange);
+};
+
+/**
+ * Отображает галерею
+ * @param {string} pictureUrl
+ */
+Gallery.prototype.showGallery = function(pictureUrl) {
+  pictureUrl = pictureUrl.match(this.REG_EXP);
+  if (pictureUrl === '') {
+    return;
+  } else {
+    pictureUrl = pictureUrl[1];
+  }
+  // Заполняем галерею данными
+  this.getGalleryElement(pictureUrl);
+
+  // Обработчик клика
+  this.addEvent.call(this, this.element.gallery, 'click', this.delegateFunction.bind(this));
+
+  // Отображаем галерею
+  this.element.gallery.classList.remove('invisible');
+};
 
 var mainGallery = new Gallery();
 

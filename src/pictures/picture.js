@@ -49,14 +49,14 @@ utilities.inherit(Photo, BaseComponent);
 Photo.prototype.onClick = function(event) {
   event.preventDefault();
   // Добавляем в хэш адреса страницы url текущего изображения
-  BaseComponent.prototype.onClick.call(this, this.data.url);
+  location.hash = 'photo/' + this.data.url;
 };
 
 /**
  * Удаляет element из разметки
  */
 Photo.prototype.remove = function() {
-  BaseComponent.prototype.remove.call(this);
+  this.remove.call(this);
 };
 
 module.exports = Photo;

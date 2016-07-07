@@ -11,13 +11,6 @@ var BaseComponent = function(element) {
 };
 
 BaseComponent.prototype = {
-  /**
-   * Обработчик клика
-   * @param {string} url
-   */
-  onClick: function(url) {
-    location.hash = 'photo/' + url;
-  },
 
   /**
    * Добавляет element в container
@@ -53,7 +46,7 @@ BaseComponent.prototype = {
     this.activeEvents.forEach(function(item) {
       item[0].removeEventListener(item[1], item[2]);
     });
-    this.activeEvents = null;
+    this.activeEvents = [];
   },
 
   /**
