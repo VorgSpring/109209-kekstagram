@@ -50,8 +50,7 @@ Photo.prototype.onClick = function(event) {
   event.preventDefault();
   if (event.target.classList.contains('picture-likes')) {
     // Увиличиваем количество likes
-    this.data.setLikesCount();
-    utilities.toUpdateFieldLikes(this.element, this.data);
+    this.data.increaseLikesCount();
   } else {
   // Добавляем в хэш адреса страницы url текущего изображения
     location.hash = 'photo/' + this.data.url;

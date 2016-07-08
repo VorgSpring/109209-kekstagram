@@ -130,14 +130,15 @@ Gallery.prototype.getGalleryElement = function(numberOrUrlOfImage) {
  */
 Gallery.prototype.delegateFunction = function(event) {
   if (event.target.classList.contains('gallery-overlay-image')) {
+    // Отображаем следующее изображение
     this._onPhotoClick();
   } else if (event.target.classList.contains('likes-count')) {
+    // Увиличиваем количество likes
     var currentObject = this.galleryPictures[this.numberOfCurrentImage];
-    currentObject.setLikesCount();
-    utilities.toUpdateFieldLikes(this.element, currentObject);
-    utilities.syncLikes(currentObject);
+    currentObject.increaseLikesCount();
   }else if (event.target.classList.contains('gallery-overlay-close') ||
     event.target.classList.contains('gallery-overlay')) {
+    // Закрываем галерею
     this.hideGallery();
   }
 };

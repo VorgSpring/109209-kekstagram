@@ -176,6 +176,8 @@ load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   setFiltrationEnabled();
   // Обработчик прокрутки scrollbar
   window.addEventListener('scroll', optimizedScroll);
+  // Обработчик increaseLikes
+  document.addEventListener('increaseLikes', utilities.updateLikesCount);
 
   if (location.hash !== '') {
     gallery.showGallery(location.hash);

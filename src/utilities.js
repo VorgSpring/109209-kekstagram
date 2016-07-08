@@ -135,21 +135,13 @@ module.exports = {
   },
 
   /**
-   * Обновляет поле likes в element
-   * @param {HTMLElement} element
-   * @param {Object} data
+   * Изменяет поле лайков в DOM списке и в галерее (обработчик события "increaseLikes")
+   * @param {Event} event
    */
-  toUpdateFieldLikes: function(element, data) {
-    element.likesCount.textContent = data.likes;
-  },
-
-  /**
-   * Ищет по url поле likes в element
-   * @param {Object} data
-   */
-  syncLikes: function(data) {
-    var selector = '.pictures img[src="' + data.url + '"] + span .picture-likes';
-    var likesContainer = document.querySelector(selector);
-    likesContainer.textContent = data.likes;
+  updateLikesCount: function(event) {
+    document.querySelector(event.detail.selectorList).textContent = event.detail.likesCount;
+    if (document.querySelector(event.detail.secectorGallery)) {
+      document.querySelector(event.detail.secectorGallery).textContent = event.detail.likesCount;
+    }
   }
 };

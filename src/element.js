@@ -17,6 +17,16 @@ var Element = function(data) {
  */
 Element.prototype.increaseLikesCount = function() {
   this.likes++;
+  // Создаём событие
+  var likesEvent = new CustomEvent('increaseLikes', {
+    detail: {
+      likesCount: this.likes,
+      selectorList: 'img[src="' + this.url + '"] + span .picture-likes',
+      secectorGallery: 'img[src="' + this.url + '"] + div .likes-count'
+    }
+  });
+  // Инициализируем событие
+  document.dispatchEvent(likesEvent);
 };
 
 module.exports = Element;
