@@ -20,7 +20,6 @@ var renderedPictures = [];
 var renderPictures = function(images, container, page, pageSize, replace) {
   if (replace) {
     renderedPictures.forEach(function(picture) {
-      console.log(picture);
       picture.remove();
       renderedPictures = [];
     });

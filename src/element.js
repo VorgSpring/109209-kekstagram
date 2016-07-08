@@ -22,7 +22,7 @@ Element.prototype.increaseLikesCount = function() {
     detail: {
       likesCount: this.likes,
       selectorList: 'img[src="' + this.url + '"] + span .picture-likes',
-      secectorGallery: 'img[src="' + this.url + '"] + div .likes-count'
+      selectorGallery: 'img[src="' + this.url + '"] + div .likes-count'
     }
   });
   // Инициализируем событие

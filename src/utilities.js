@@ -139,9 +139,13 @@ module.exports = {
    * @param {Event} event
    */
   updateLikesCount: function(event) {
-    document.querySelector(event.detail.selectorList).textContent = event.detail.likesCount;
+    var likesContainerList = document.querySelector(event.detail.selectorList);
+    var likesContainerGallery = document.querySelector(event.detail.selectorGallery);
+    if (likesContainerList) {
+      likesContainerList.textContent = event.detail.likesCount;
+    }
     if (document.querySelector(event.detail.secectorGallery)) {
-      document.querySelector(event.detail.secectorGallery).textContent = event.detail.likesCount;
+      likesContainerGallery.textContent = event.detail.likesCount;
     }
   }
 };
