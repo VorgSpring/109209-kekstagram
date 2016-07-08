@@ -1,19 +1,6 @@
 ﻿'use strict';
 
 /**
- * Действие при неудачной загрузке изображения
- * @param {HTMLElement} uploadImage
- * @param {HTMLElement} contantImage
- */
-var toFailedLoadImage = require('../utilities').toFailedLoadImage;
-
-/**
- * Допустимое время загрузки
- * @constant {number}
- */
-var LOAD_TIMEOUT = 10000;
-
-/**
  * Шаблон для блока с фотографиями
  * @type {HTMLElement}
  */
@@ -33,42 +20,15 @@ if ('content' in templateElement) {
 }
 
 /**
- * Добавляет в container объект data на основе шаблона templateElement
- * @param {Object} data
- * @param {HTMLElement} container
+ * Создаёт объект element на основе шаблона templateElement
  * @return {HTMLElement} element
  */
-var getPictureElement = function(data, container) {
+var getPictureElement = function() {
   // Клонируем шаблонный элемент
   var element = elementToClone.cloneNode(true);
-  // Заполняем элемент данными о комментариях, лайках
-  element.querySelector('.picture-comments').textContent = data.comments;
-  element.querySelector('.picture-likes').textContent = data.likes;
-  // Добавляем фото
-  var contantImage = element.querySelector('img');
-  var uploadImage = new Image(182, 182);
-  var imageLoadTimeout = setTimeout(function() {
-    toFailedLoadImage(uploadImage, contantImage);
-  }, LOAD_TIMEOUT);
-
-  // Обработчик загрузки
-  uploadImage.onload = function() {
-    uploadImage.onerror = null;
-    clearTimeout(imageLoadTimeout);
-    contantImage.src = data.url;
-  };
-
-  // Обработчик ошибки
-  uploadImage.onerror = function() {
-    uploadImage.onload = null;
-    clearTimeout(imageLoadTimeout);
-    toFailedLoadImage(uploadImage, contantImage);
-  };
-
-  uploadImage.src = data.url;
-
-  // Вставляем элемент в DOM
-  container.appendChild(element);
+  element.likesCount = element.querySelector('.picture-likes');
+  element.commentsCount = element.querySelector('.picture-comments');
+  element.contantImage = element.querySelector('img');
   return element;
 };
 

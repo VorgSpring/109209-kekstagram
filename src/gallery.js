@@ -1,13 +1,6 @@
 ﻿'use strict';
 
 /**
- * Действие при неудачной загрузке изображения
- * @param {HTMLElement} uploadImage
- * @param {HTMLElement} contantImage
- */
-var toFailedLoadImage = require('./utilities').toFailedLoadImage;
-
-/**
  * Находит в массиве объект который содержит url и возвращает этот объект
  * @param {Array.<Object>} array
  * @param {string} url
@@ -16,29 +9,34 @@ var toFailedLoadImage = require('./utilities').toFailedLoadImage;
 var searchInArray = require('./utilities.js').searchInArray;
 
 /**
+ * Описывает базовую DOM-компоненту
+ * @constructor
+ */
+var BaseComponent = require('./base-component');
+
+/**
+ * Базовые функции
+ */
+var utilities = require('./utilities');
+
+
+/**
  * Конструктор для отрисовки галереи
  * @constructor
  */
 var Gallery = function() {
 
-  var self = this;
-  /**
-   * Допустимое время загрузки
-   * @constant {number}
-   */
-  var LOAD_TIMEOUT = 10000;
-
   /**
    * Код клавиши 'ESC'
    * @constant {number}
    */
-  var ESC_KEY_CODE = 27;
+  this.ESC_KEY_CODE = 27;
 
   /**
    * Регулярное выражение для проверки
    * @constant {RegExp}
    */
-  var REG_EXP = /#photo\/(\S+)/;
+  this.REG_EXP = /#photo\/(\S+)/;
 
   this.element = {
     /**
@@ -50,26 +48,26 @@ var Gallery = function() {
        * Блок с изображением
        * @type {HTMLElement}
        */
-    galleryContantImage: document.querySelector('.gallery-overlay-image'),
+    contantImage: document.querySelector('.gallery-overlay-image'),
 
     /**
      * Блок с колличеством 'лайков'
      * @type {HTMLElement}
      */
-    galleryLikesCount: document.querySelector('.likes-count'),
+    likesCount: document.querySelector('.likes-count'),
 
     /**
      * Блок с колличеством коментариев
      * @type {HTMLElement}
      */
-    galleryCommentsCount: document.querySelector('.comments-count')
+    commentsCount: document.querySelector('.comments-count')
   };
 
   /**
    * Массив с изображениями
    * @type {Array}
    */
-  var galleryPictures = [];
+  this.galleryPictures = [];
 
   /**
    * Номер текущего изображения
@@ -77,147 +75,143 @@ var Gallery = function() {
    */
   this.numberOfCurrentImage = null;
 
-  /**
-   * Скрывает галерею, удаляет связанный с ней делегат и чистит хэш адресной строки
-   */
-  this.hideGallery = function() {
-    // Скрываем галерею
-    self.element.gallery.classList.add('invisible');
+  BaseComponent.call(this, this.element);
+  this.hideGallery = this.hideGallery.bind(this);
+  this.getGalleryElement = this.getGalleryElement.bind(this);
+  this.delegateFunction = this.delegateFunction.bind(this);
+  this._onPhotoClick = this._onPhotoClick.bind(this);
+  this._onDocumentKeyDown = this._onDocumentKeyDown.bind(this);
+  this._onHashChange = this._onHashChange.bind(this);
+  this.initGallery = this.initGallery.bind(this);
+  this.showGallery = this.showGallery.bind(this);
+};
 
-    // Удаляем делегат
-    self.element.gallery.removeEventListener('click', self.delegateFunction);
+// Наследуем цепочку прототипов
+utilities.inherit(Gallery, BaseComponent);
 
-    // Чистим хэш адресной строки
-    location.hash = '';
-  };
+/**
+ * Скрывает галерею, удаляет связанный с ней делегат и чистит хэш адресной строки
+ */
+Gallery.prototype.hideGallery = function() {
+  // Скрываем галерею
+  this.element.gallery.classList.add('invisible');
 
-  /**
-   * Заполняет галерею
-   * @param {number} or {string} numberOrUrlOfImage
-   */
-  this.getGalleryElement = function(numberOrUrlOfImage) {
-    // Находим элемент
-    var currentImage = null;
-    // Сохраняем номер текущего изображения
-    if (typeof numberOrUrlOfImage === 'string') {
-      self.numberOfCurrentImage = searchInArray(galleryPictures, numberOrUrlOfImage);
-      currentImage = galleryPictures[self.numberOfCurrentImage];
-    } else if (typeof numberOrUrlOfImage === 'number') {
-      self.numberOfCurrentImage = numberOrUrlOfImage;
-      currentImage = galleryPictures[numberOrUrlOfImage];
-    }
-    // Заполняем галерею данными о комментариях, лайках
-    self.element.galleryLikesCount.textContent = currentImage.likes;
-    self.element.galleryCommentsCount.textContent = currentImage.comments;
-    // Добавляем фото
-    var uploadImage = new Image(640, 640);
-    var imageLoadTimeout = setTimeout(function() {
-      toFailedLoadImage(uploadImage, self.element.galleryContantImage);
-    }, LOAD_TIMEOUT);
+  // Удаляем делегат
+  this.removeEvents.call(this);
 
-    // Обработчик загрузки
-    uploadImage.onload = function() {
-      uploadImage.onerror = null;
-      clearTimeout(imageLoadTimeout);
-      if (self.element.galleryContantImage.classList.contains('picture-load-failure')) {
-        self.element.galleryContantImage.classList.remove('picture-load-failure');
-      }
-      self.element.galleryContantImage.src = currentImage.url;
-    };
+  // Чистим хэш адресной строки
+  location.hash = '';
+};
 
-    // Обработчик ошибки
-    uploadImage.onerror = function() {
-      uploadImage.onload = null;
-      clearTimeout(imageLoadTimeout);
-      toFailedLoadImage(uploadImage, self.element.galleryContantImage);
-      self.element.galleryContantImage.src = '';
-    };
+/**
+ * Заполняет галерею
+ * @param {number} or {string} numberOrUrlOfImage
+ */
+Gallery.prototype.getGalleryElement = function(numberOrUrlOfImage) {
+  // Находим элемент
+  var currentObject = null;
+  // Сохраняем номер текущего изображения
+  if (typeof numberOrUrlOfImage === 'string') {
+    this.numberOfCurrentImage = searchInArray(this.galleryPictures, numberOrUrlOfImage);
+    currentObject = this.galleryPictures[this.numberOfCurrentImage];
+  } else if (typeof numberOrUrlOfImage === 'number') {
+    this.numberOfCurrentImage = numberOrUrlOfImage;
+    currentObject = this.galleryPictures[numberOrUrlOfImage];
+  }
+  // Размер вставляемого изображения
+  var size = 640;
+  // Заполняем галерею данными о комментариях, лайках
+  utilities.createDOM(this.element, currentObject, size);
+};
 
-    uploadImage.src = currentImage.url;
-  };
+/**
+ * Делегат на галереи
+ * @param {Event} event
+ */
+Gallery.prototype.delegateFunction = function(event) {
+  if (event.target.classList.contains('gallery-overlay-image')) {
+    // Отображаем следующее изображение
+    this._onPhotoClick();
+  } else if (event.target.classList.contains('likes-count')) {
+    // Увиличиваем количество likes
+    var currentObject = this.galleryPictures[this.numberOfCurrentImage];
+    currentObject.increaseLikesCount();
+  }else if (event.target.classList.contains('gallery-overlay-close') ||
+    event.target.classList.contains('gallery-overlay')) {
+    // Закрываем галерею
+    this.hideGallery();
+  }
+};
 
-  /**
-   * Делегат на галереи
-   * @param {Event} event
-   */
-  this.delegateFunction = function(event) {
-    if (event.target.classList.contains('gallery-overlay-image')) {
-      self._onPhotoClick();
-    } else if (event.target.classList.contains('gallery-overlay-close') ||
-      event.target.classList.contains('gallery-overlay')) {
-      self.hideGallery();
-    }
-  };
+/**
+ * Обработчик клика на изображении
+ */
+Gallery.prototype._onPhotoClick = function() {
+  // Увиличиваем номер текущего изображения
+  this.numberOfCurrentImage++;
+  if (this.numberOfCurrentImage === this.galleryPictures.length) {
+    this.numberOfCurrentImage = 0;
+  }
 
-  /**
-   * Обработчик клика на изображении
-   */
-  this._onPhotoClick = function() {
-    // Увиличиваем номер текущего изображения
-    self.numberOfCurrentImage++;
-    if (self.numberOfCurrentImage === galleryPictures.length) {
-      self.numberOfCurrentImage = 0;
-    }
+  // Добавляем в хэш адреса страницы url следующего изображения
+  location.hash = 'photo/' + this.galleryPictures[this.numberOfCurrentImage].url;
+};
 
-    // Добавляем в хэш адреса страницы url следующего изображения
-    location.hash = 'photo/' + galleryPictures[self.numberOfCurrentImage].url;
+/**
+ * Обработчик нажатия клавиши 'ESC'
+ * @param {Event} event
+ */
+Gallery.prototype._onDocumentKeyDown = function(event) {
+  if (event.keyCode === this.ESC_KEY_CODE) {
+    this.hideGallery();
+  }
+};
 
-  };
+/**
+ * Обработчик изменения адресной строки
+ */
+Gallery.prototype._onHashChange = function() {
+  var adress = location.hash;
+  if (!adress.match(this.REG_EXP)) {
+    this.hideGallery();
+  } else {
+    this.showGallery(adress);
+  }
+};
 
-  /**
-   * Обработчик нажатия клавиши 'ESC'
-   * @param {Event} event
-   */
-  this._onDocumentKeyDown = function(event) {
-    if (event.keyCode === ESC_KEY_CODE) {
-      self.hideGallery();
-    }
-  };
+/**
+ * Сохраняет полученный список с изображениями
+ * @param {Array} pictures
+ */
+Gallery.prototype.initGallery = function(pictures) {
+  this.galleryPictures = pictures;
 
-  /**
-   * Обработчик изменения адресной строки
-   */
-  this._onHashChange = function() {
-    var adress = location.hash;
-    if (!adress.match(REG_EXP)) {
-      self.hideGallery();
-    } else {
-      self.showGallery(adress);
-    }
-  };
+  // Обработчик нажатия клавиши 'ESC'
+  window.addEventListener('keypress', this._onDocumentKeyDown);
 
-  /**
-   * Сохраняет полученный список с изображениями
-   * @param {Array} pictures
-   */
-  this.initGallery = function(pictures) {
-    galleryPictures = pictures;
+  // Обработчик изменения адресной строки
+  window.addEventListener('hashchange', this._onHashChange);
+};
 
-    // Обработчик нажатия клавиши 'ESC'
-    window.addEventListener('keypress', self._onDocumentKeyDown);
+/**
+ * Отображает галерею
+ * @param {string} pictureUrl
+ */
+Gallery.prototype.showGallery = function(pictureUrl) {
+  pictureUrl = pictureUrl.match(this.REG_EXP);
+  if (pictureUrl === '') {
+    return;
+  } else {
+    pictureUrl = pictureUrl[1];
+  }
+  // Заполняем галерею данными
+  this.getGalleryElement(pictureUrl);
 
-    // Обработчик изменения адресной строки
-    window.addEventListener('hashchange', self._onHashChange);
-  };
+  // Обработчик клика
+  this.addEvent.call(this, this.element.gallery, 'click', this.delegateFunction.bind(this));
 
-  /**
-   * Отображает галерею
-   * @param {string} pictureUrl
-   */
-  this.showGallery = function(pictureUrl) {
-    pictureUrl = pictureUrl.match(REG_EXP)[1];
-    if (!pictureUrl) {
-      return;
-    }
-    // Заполняем галерею данными
-    self.getGalleryElement(pictureUrl);
-
-    // Обработчик клика
-    self.element.gallery.addEventListener('click', self.delegateFunction);
-
-    // Отображаем галерею
-    self.element.gallery.classList.remove('invisible');
-  };
+  // Отображаем галерею
+  this.element.gallery.classList.remove('invisible');
 };
 
 var mainGallery = new Gallery();

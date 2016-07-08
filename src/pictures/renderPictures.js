@@ -21,6 +21,7 @@ var renderPictures = function(images, container, page, pageSize, replace) {
   if (replace) {
     renderedPictures.forEach(function(picture) {
       picture.remove();
+      renderedPictures = [];
     });
     // Отчищаем контейнер
     container.innerHTML = '';

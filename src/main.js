@@ -7,7 +7,7 @@ var getFilteredImages = require('./filter');
 var renderPictures = require('./pictures/renderPictures');
 var load = require('./load');
 var utilities = require('./utilities');
-var gallery = require('./gallery.js');
+var gallery = require('./gallery');
 
 /**
  * Массив с изображениями, которые полученны с сервера
@@ -176,6 +176,8 @@ load(picturesContainer, IMAGE_LOAD_URL, function(loadedImages) {
   setFiltrationEnabled();
   // Обработчик прокрутки scrollbar
   window.addEventListener('scroll', optimizedScroll);
+  // Обработчик increaseLikes
+  document.addEventListener('increaseLikes', utilities.updateLikesCount);
 
   if (location.hash !== '') {
     gallery.showGallery(location.hash);
