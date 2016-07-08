@@ -144,7 +144,7 @@ module.exports = {
     if (likesContainerList) {
       likesContainerList.textContent = event.detail.likesCount;
     }
-    if (document.querySelector(event.detail.secectorGallery)) {
+    if (likesContainerGallery) {
       likesContainerGallery.textContent = event.detail.likesCount;
     }
   }
